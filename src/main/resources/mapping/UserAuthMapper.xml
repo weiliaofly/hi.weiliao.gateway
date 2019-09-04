@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.hi.weiliao.user.mapper.UserAuthMapper">
+
+    <resultMap id="UserAuth" type="com.hi.weiliao.user.bean.UserAuth">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="wxOpenid" property="wxOpenid" jdbcType="VARCHAR"/>
+        <result column="session" property="session" jdbcType="VARCHAR"/>
+        <result column="createTime" property="createTime" jdbcType="VARCHAR"/>
+        <result column="reviseTime" property="reviseTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserAuth" keyProperty="id">
+        insert into `USER_AUTH` (`PHONE`, `PASSWORD`, `WX_OPENID`, `SESSION`)
+        values (#{phone}, #{passWord}, #{wxOpenid}, #{session})
+    </insert>
+
+    <update id="update" parameterType="com.hi.weiliao.user.bean.UserAuth">
+        update USER_AUTH
+        set
+        <if test="phone != null and phone != ''">
+            phone = #{phone},
+        </if>
+        <if test="password != null and password != ''">
+            password = #{password},
+        </if>
+        <if test="wxOpenid != null and wxOpenid != ''">
+            wx_openid = #{wxOpenid},
+        </if>
+        <if test="session != null and session != ''">
+            session = #{session},
+        </if>
+            revise_time = NOW()
+        where id = #{id}
+    </update>
+
+    <select id="query" resultMap="UserAuth">
+        select *
+        from USER_AUTH
+    </select>
+
+    <select id="getByOpenid" resultMap="UserAuth" parameterType="map">
+        select phone, session
+        from USER_AUTH
+        where wxOpenid = #{wxOpenid}
+    </select>
+
+    <select id="getBySession" resultMap="UserAuth" parameterType="map">
+        select *
+        from USER_AUTH
+        where session = #{session}
+    </select>
+
+</mapper>

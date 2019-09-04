@@ -1,0 +1,13 @@
+server:
+  port: 9999
+
+spring:
+  datasource:
+    jdbcUrl: jdbc:mysql://106.13.18.96:3306/weiliao_user?characterEncoding=utf8
+    driverClass: com.mysql.jdbc.Driver
+    user: root
+    password: mysql-root
+
+wxconfig:
+  appId: wxedfcddc996ccc43e
+  appSecret: 9312ee4d79d6435cbcf67d19c13d8784

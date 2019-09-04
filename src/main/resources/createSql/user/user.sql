@@ -1,0 +1,41 @@
+DROP PROCEDURE IF EXISTS CREATE_TABLE;
+CREATE PROCEDURE CREATE_TABLE()
+BEGIN
+
+    IF NOT EXISTS
+        (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'USER')
+    THEN
+        CREATE TABLE USER_AUTH (
+              ID                 INTEGER         NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+              PHONE              INTEGER(11)     NOT NULL COMMENT '手机号',
+              PASSWORD           VARCHAR(20)     NULL DEFAULT '' COMMENT '密码',
+              WX_OPENID			 VARCHAR(200)    NULL DEFAULT '' COMMENT '微信的openid',
+              SESSION			 VARCHAR(50)     NULL DEFAULT '' COMMENT '用户会话',
+              CREATE_TIME        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+              REVISE_TIME        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+              PRIMARY KEY (ID),
+              UNIQUE KEY USER_AUTH(PHONE)
+        ) COMMENT '用户表';
+    END IF;
+
+    IF NOT EXISTS
+        (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'USER_INFO')
+    THEN
+        CREATE TABLE USER_INFO (
+              USER_ID            INTEGER         NOT NULL COMMENT '用户ID',
+              NAME               VARCHAR(20)     NULL DEFAULT '' COMMENT '昵称',
+              HEAD_ICON			 VARCHAR(200)    NULL DEFAULT '' COMMENT '头像',
+              BACKGROUND         VARCHAR(200)    NULL DEFAULT '' COMMENT '背景',
+              PERSONAL_SIGN      VARCHAR(200)    NULL DEFAULT '' COMMENT '个性签名',
+              SEX                TINYINT(1)      NULL DEFAULT '' COMMENT '性别:0-女，1-男'
+              BIRTHDAY           TIMESTAMP       NULL DEFAULT '' COMMENT '生日',
+              ADDRESS            VARCHAR(200)    NULL DEFAULT '' COMMENT '地址',
+              REVISE_TIME        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+              PRIMARY KEY (USER_ID),
+              UNIQUE KEY NAME(NAME)
+        ) COMMENT '用户信息表';
+    END IF;
+
+END;
+CALL CREATE_TABLE();
+DROP PROCEDURE IF EXISTS CREATE_TABLE;
