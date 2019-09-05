@@ -62,7 +62,7 @@ public class UserAuthServiceImpl implements UserAuthService {
                 .append("&grant_type=authorization_code").toString();
 
         JSONObject result = HttpUtils.doGet(url, null);
-        String errcode = result.getString("");
+        String errcode = result.getString("errcode");
         if (StringUtils.isEmpty(errcode)) {
             throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "请求微信接口失败");
         } else if ("40029".equals(errcode)) {
