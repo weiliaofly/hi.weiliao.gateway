@@ -11,6 +11,7 @@ import com.hi.weiliao.base.utils.UuidUtils;
 import com.hi.weiliao.user.bean.UserAuth;
 import com.hi.weiliao.user.mapper.UserAuthMapper;
 import com.hi.weiliao.user.service.UserAuthService;
+import com.hi.weiliao.user.service.UserInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class UserAuthServiceImpl implements UserAuthService {
     private static ConcurrentHashMap<String, String> openidToSessionKey = new ConcurrentHashMap();
 
     @Autowired
+    private UserInfoService userInfoService;
+
+    @Autowired
     private UserAuthMapper userAuthMapper;
 
     @Autowired
@@ -38,9 +42,10 @@ public class UserAuthServiceImpl implements UserAuthService {
         UserAuth userAuth = new UserAuth();
         String session = createSession();
         userAuth.setPhone(phone);
-        userAuth.setPassword(Md5Utils.encrypt(password));
+        userAuth.setPassWord(Md5Utils.encrypt(password));
         userAuth.setSession(session);
         userAuthMapper.insert(userAuth);
+        userInfoService.initUserInfo(userAuth.getId(), phone);
         return session;
     }
 
@@ -63,14 +68,14 @@ public class UserAuthServiceImpl implements UserAuthService {
 
         JSONObject result = HttpUtils.doGet(url, null);
         String errcode = result.getString("errcode");
-        if (StringUtils.isEmpty(errcode)) {
-            throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "请求微信接口失败");
-        } else if ("40029".equals(errcode)) {
-            throw new UserException(ReturnCode.BAD_REQUEST, "code无效");
-        } else if ("45011".equals(errcode)) {
-            throw new UserException(ReturnCode.BAD_REQUEST, "请求频率过高");
-        } else if (!"0".equals(errcode)) {
-            throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, result.getString("errmsg"));
+        if (!StringUtils.isEmpty(errcode)) {
+            if ("40029".equals(errcode)) {
+                throw new UserException(ReturnCode.BAD_REQUEST, "code无效");
+            } else if ("45011".equals(errcode)) {
+                throw new UserException(ReturnCode.BAD_REQUEST, "请求频率过高");
+            } else if (!"0".equals(errcode)) {
+                throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, result.getString("errmsg"));
+            }
         }
 
         String openid = result.getString("openid");
@@ -83,6 +88,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         } else {
             return userAuth;
         }
+
     }
 
     @Override
@@ -100,11 +106,21 @@ public class UserAuthServiceImpl implements UserAuthService {
             userAuth.setPhone(phone);
             userAuth.setSession(session);
             userAuthMapper.insert(userAuth);
+            userInfoService.initUserInfo(userAuth.getId(), phone);
             openidToSessionKey.remove(openid);
         } catch (Exception e) {
             throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "手机号解密出错");
         }
         return session;
+    }
+
+    @Override
+    public Integer getUserIdBySession(String session) {
+        UserAuth userAuth = userAuthMapper.getBySession(session);
+        if (userAuth != userAuth) {
+            return userAuth.getId();
+        }
+        return 0;
     }
 
     private String createSession() {
