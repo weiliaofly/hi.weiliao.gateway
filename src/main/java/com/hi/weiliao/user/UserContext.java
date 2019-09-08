@@ -3,7 +3,9 @@ package com.hi.weiliao.user;
 import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.context.BaseContext;
 import com.hi.weiliao.base.exception.UserException;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserContext extends BaseContext {
 
     private static final String USER_ID = "USER_ID";
