@@ -11,6 +11,12 @@ public interface UserAuthService {
 
     String registerByVCode(String phone, String vCode);
 
+    void setPassword(Integer userId, String password);
+
+    void changePassword(Integer userId, String oldPassword, String newPassword);
+
+    void resetPassword(String phone, String vCode);
+
     List<UserAuth> query();
 
     UserAuth wxlogin(String jscode);

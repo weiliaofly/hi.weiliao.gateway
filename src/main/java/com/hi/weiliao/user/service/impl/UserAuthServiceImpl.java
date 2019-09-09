@@ -60,7 +60,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         }
         String oldCode = codeMapper.queryVaildCodeByPhone(phone);
         if(!StringUtils.isEmpty(oldCode)){
-            throw new UserException(ReturnCode.BAD_REQUEST, "请稍后重试");
+            throw new UserException(ReturnCode.BAD_REQUEST, "验证码未过期，请稍后重试");
         }
         DefaultProfile profile = DefaultProfile.getProfile("cn-shenzhen", aliConfig.getAccessKeyId(), aliConfig.getAccessKeySecret());
         IAcsClient client = new DefaultAcsClient(profile);
@@ -98,6 +98,55 @@ public class UserAuthServiceImpl implements UserAuthService {
             throw new UserException(ReturnCode.BAD_REQUEST, "验证码过期或无效");
         }
         return registerByPhone(phone, "");
+    }
+
+    @Override
+    public void setPassword(Integer userId, String password) {
+        UserAuth exist = userAuthMapper.getById(userId);
+        if(exist == null){
+            throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
+        }
+        if(!StringUtils.isEmpty(exist.getPassWord())){
+            throw new UserException(ReturnCode.BAD_REQUEST, "需要先短信验证才能重置密码");
+        }
+        UserAuth updateUA = new UserAuth();
+        updateUA.setId(userId);
+        updateUA.setPassWord(Md5Utils.encrypt(password));
+        userAuthMapper.update(updateUA);
+    }
+
+    @Override
+    public void changePassword(Integer userId, String oldPassword, String newPassword) {
+        UserAuth exist = userAuthMapper.getById(userId);
+        if(exist == null){
+            throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
+        }
+        oldPassword = Md5Utils.encrypt(oldPassword);
+        newPassword = Md5Utils.encrypt(newPassword);
+        if(!oldPassword.equals(exist.getPassWord())){
+            throw new UserException(ReturnCode.BAD_REQUEST, "密码错误");
+        }
+        UserAuth updateUA = new UserAuth();
+        updateUA.setId(userId);
+        updateUA.setPassWord(newPassword);
+        userAuthMapper.update(updateUA);
+    }
+
+    @Override
+    public void resetPassword(String phone, String vCode) {
+
+        UserAuth exist = userAuthMapper.getByPhone(phone);
+        if(exist == null){
+            throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
+        }
+        String sendCode = codeMapper.queryVaildCodeByPhone(phone);
+        if (StringUtils.isEmpty(sendCode) || !sendCode.equals(vCode)) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "验证码过期或无效");
+        }
+        UserAuth updateUA = new UserAuth();
+        updateUA.setId(exist.getId());
+        updateUA.setPassWord("");
+        userAuthMapper.update(updateUA);
     }
 
     @Override

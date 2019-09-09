@@ -3,6 +3,7 @@ package com.hi.weiliao.user.controller;
 import com.hi.weiliao.base.BaseController;
 import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.bean.ReturnObject;
+import com.hi.weiliao.user.UserContext;
 import com.hi.weiliao.user.service.UserAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,9 @@ public class UserAuthController extends BaseController {
 
     @Autowired
     private UserAuthService userAuthService;
+
+    @Autowired
+    private UserContext userContext;
 
     @RequestMapping(value = "/query", method = RequestMethod.GET)
     public ReturnObject query() {
@@ -53,7 +57,7 @@ public class UserAuthController extends BaseController {
      * @return
      */
     @RequestMapping(value = "/register_vcode", method = RequestMethod.POST)
-    public ReturnObject register(@RequestBody Map<String, String> register) {
+    public ReturnObject vcRegister(@RequestBody Map<String, String> register) {
         String phone = register.get("phone");
         String vCode = register.get("vcode");
         if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(vCode)) {
@@ -69,12 +73,72 @@ public class UserAuthController extends BaseController {
     }
 
     /**
+     * 初次登陆设置密码
+     * @param register
+     * @return
+     */
+    @RequestMapping(value = "/set_password", method = RequestMethod.POST)
+    public ReturnObject setPassword(@RequestBody Map<String, String> register) {
+        String password = register.get("password");
+        if (StringUtils.isEmpty(password)) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
+        }
+        if (!password.matches("^[A-Za-z0-9\\u4E00-\\u9FA5-]{5,20}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "密码只能由英文，数字，5-20位组成");
+        }
+        userAuthService.setPassword(userContext.getUserId(), password);
+        return new ReturnObject(ReturnCode.SUCCESS);
+    }
+
+    /**
+     * 修改密码
+     * @param register
+     * @return
+     */
+    @RequestMapping(value = "/change_password", method = RequestMethod.PUT)
+    public ReturnObject changePassword(@RequestBody Map<String, String> register) {
+        String oldPassword = register.get("old_password");
+        String newPassword = register.get("new_password");
+        if (StringUtils.isEmpty(oldPassword) || StringUtils.isEmpty(newPassword)) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
+        }
+        if (!newPassword.matches("^[A-Za-z0-9\\u4E00-\\u9FA5-]{5,20}$")
+                || !oldPassword.matches("^[A-Za-z0-9\\u4E00-\\u9FA5-]{5,20}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "密码只能由英文，数字，5-20位组成");
+        }
+        userAuthService.changePassword(userContext.getUserId(), oldPassword, newPassword);
+        return new ReturnObject(ReturnCode.SUCCESS);
+    }
+
+    /**
+     * 短信验证码重置密码（忘记密码）
+     * @param register
+     * @return
+     */
+    @RequestMapping(value = "/reset_password", method = RequestMethod.PUT)
+    public ReturnObject resetPassword(@RequestBody Map<String, String> register) {
+        String phone = register.get("phone");
+        String vCode = register.get("vcode");
+        if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(vCode)) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
+        }
+        if (!phone.matches("^1\\d{10}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "手机号错误");
+        }
+        if (!vCode.matches("^\\d{6}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "验证码为6位");
+        }
+        userAuthService.resetPassword(phone, vCode);
+        return new ReturnObject(ReturnCode.SUCCESS);
+    }
+
+    /**
      * 微信登录，用jscode直接换到openid查询有无存在用户，不存在返回openid
      *
      * @param wxlogin
      * @return
      */
-    @RequestMapping(value = "/wxlogin", method = RequestMethod.POST)
+    @RequestMapping(value = "/wx_login", method = RequestMethod.POST)
     public ReturnObject wxlogin(@RequestBody Map<String, String> wxlogin) {
         String code = wxlogin.get("code");
         if (StringUtils.isEmpty(code)) {
@@ -89,9 +153,9 @@ public class UserAuthController extends BaseController {
      * @param wxPhoneLogin
      * @return
      */
-    @RequestMapping(value = "/wxPhoneLogin", method = RequestMethod.POST)
+    @RequestMapping(value = "/wx_phone_login", method = RequestMethod.POST)
     public ReturnObject wxPhoneLogin(@RequestBody Map<String, String> wxPhoneLogin) {
-        String encryptedData = wxPhoneLogin.get("encryptedData");
+        String encryptedData = wxPhoneLogin.get("encrypted_data");
         String iv = wxPhoneLogin.get("iv");
         String openid = wxPhoneLogin.get("openid");
         if (StringUtils.isEmpty(encryptedData) || StringUtils.isEmpty(iv) || StringUtils.isEmpty(openid)) {

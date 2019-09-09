@@ -10,13 +10,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebAppConfigurer implements WebMvcConfigurer {
 
     @Bean
-    public HandlerInterceptor getMyInterceptor(){
+    public HandlerInterceptor getMyInterceptor() {
         return new SessionInterceptor();
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 可添加多个
-        registry.addInterceptor(getMyInterceptor()).addPathPatterns("/userinfo/**");
+        registry.addInterceptor(getMyInterceptor())
+                .addPathPatterns("/userinfo/**")
+                .addPathPatterns("/userauth/set_password")
+                .addPathPatterns("/userauth/change_password");
     }
 }
