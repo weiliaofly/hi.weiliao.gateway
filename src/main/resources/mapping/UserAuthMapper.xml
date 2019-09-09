@@ -7,10 +7,10 @@
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="phone" property="phone" jdbcType="VARCHAR"/>
         <result column="password" property="password" jdbcType="VARCHAR"/>
-        <result column="wxOpenid" property="wxOpenid" jdbcType="VARCHAR"/>
+        <result column="wx_openid" property="wxOpenid" jdbcType="VARCHAR"/>
         <result column="session" property="session" jdbcType="VARCHAR"/>
-        <result column="createTime" property="createTime" jdbcType="VARCHAR"/>
-        <result column="reviseTime" property="reviseTime" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+        <result column="revise_time" property="reviseTime" jdbcType="VARCHAR"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserAuth" keyProperty="id">
@@ -45,7 +45,7 @@
     <select id="getByOpenid" resultMap="UserAuth" parameterType="map">
         select phone, session
         from USER_AUTH
-        where wxOpenid = #{wxOpenid}
+        where wx_openid = #{wxOpenid}
     </select>
 
     <select id="getBySession" resultMap="UserAuth" parameterType="map">

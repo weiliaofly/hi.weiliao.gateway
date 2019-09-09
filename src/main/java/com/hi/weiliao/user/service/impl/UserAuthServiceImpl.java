@@ -62,18 +62,19 @@ public class UserAuthServiceImpl implements UserAuthService {
                 .append("&grant_type=authorization_code").toString();
 
         JSONObject result = HttpUtils.doGet(url, null);
+        String openid = result.getString("openid");
         String errcode = result.getString("errcode");
-        if (StringUtils.isEmpty(errcode)) {
+        if (StringUtils.isEmpty(openid)) {
+            if ("40029".equals(errcode)) {
+                throw new UserException(ReturnCode.BAD_REQUEST, "code无效");
+            } else if ("45011".equals(errcode)) {
+                throw new UserException(ReturnCode.BAD_REQUEST, "请求频率过高");
+            } else if (!"0".equals(errcode)) {
+                throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, result.getString("errmsg"));
+            }
             throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "请求微信接口失败");
-        } else if ("40029".equals(errcode)) {
-            throw new UserException(ReturnCode.BAD_REQUEST, "code无效");
-        } else if ("45011".equals(errcode)) {
-            throw new UserException(ReturnCode.BAD_REQUEST, "请求频率过高");
-        } else if (!"0".equals(errcode)) {
-            throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, result.getString("errmsg"));
         }
 
-        String openid = result.getString("openid");
         UserAuth userAuth = userAuthMapper.getByOpenid(openid);
         if (userAuth == null) {
             userAuth = new UserAuth();
