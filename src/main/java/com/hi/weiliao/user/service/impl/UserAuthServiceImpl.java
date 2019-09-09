@@ -106,12 +106,12 @@ public class UserAuthServiceImpl implements UserAuthService {
         if(exist == null){
             throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
         }
-        if(!StringUtils.isEmpty(exist.getPassWord())){
+        if(!StringUtils.isEmpty(exist.getPassword())){
             throw new UserException(ReturnCode.BAD_REQUEST, "需要先短信验证才能重置密码");
         }
         UserAuth updateUA = new UserAuth();
         updateUA.setId(userId);
-        updateUA.setPassWord(Md5Utils.encrypt(password));
+        updateUA.setPassword(Md5Utils.encrypt(password));
         userAuthMapper.update(updateUA);
     }
 
@@ -123,12 +123,12 @@ public class UserAuthServiceImpl implements UserAuthService {
         }
         oldPassword = Md5Utils.encrypt(oldPassword);
         newPassword = Md5Utils.encrypt(newPassword);
-        if(!oldPassword.equals(exist.getPassWord())){
+        if(!oldPassword.equals(exist.getPassword())){
             throw new UserException(ReturnCode.BAD_REQUEST, "密码错误");
         }
         UserAuth updateUA = new UserAuth();
         updateUA.setId(userId);
-        updateUA.setPassWord(newPassword);
+        updateUA.setPassword(newPassword);
         userAuthMapper.update(updateUA);
     }
 
@@ -145,7 +145,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         }
         UserAuth updateUA = new UserAuth();
         updateUA.setId(exist.getId());
-        updateUA.setPassWord("");
+        updateUA.setPassword("");
         userAuthMapper.update(updateUA);
     }
 
