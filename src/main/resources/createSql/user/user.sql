@@ -7,8 +7,8 @@ BEGIN
     THEN
         CREATE TABLE USER_AUTH (
               ID                 INTEGER         NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-              PHONE              INTEGER(11)     NOT NULL COMMENT '手机号',
-              PASSWORD           VARCHAR(20)     NULL DEFAULT '' COMMENT '密码',
+              PHONE              VARCHAR(11)     NOT NULL COMMENT '手机号',
+              PASSWORD           VARCHAR(50)     NULL DEFAULT '' COMMENT '密码',
               WX_OPENID			 VARCHAR(200)    NULL DEFAULT '' COMMENT '微信的openid',
               SESSION			 VARCHAR(50)     NULL DEFAULT '' COMMENT '用户会话',
               CREATE_TIME        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -27,8 +27,8 @@ BEGIN
               HEAD_ICON			 VARCHAR(200)    NULL DEFAULT '' COMMENT '头像',
               BACKGROUND         VARCHAR(200)    NULL DEFAULT '' COMMENT '背景',
               PERSONAL_SIGN      VARCHAR(200)    NULL DEFAULT '' COMMENT '个性签名',
-              SEX                TINYINT(1)      NULL DEFAULT '' COMMENT '性别:0-女，1-男'
-              BIRTHDAY           TIMESTAMP       NULL DEFAULT '' COMMENT '生日',
+              SEX                TINYINT(1)      NULL DEFAULT 1 COMMENT '性别:0-女，1-男',
+              BIRTHDAY           TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP COMMENT '生日',
               ADDRESS            VARCHAR(200)    NULL DEFAULT '' COMMENT '地址',
               REVISE_TIME        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
               PRIMARY KEY (USER_ID),

@@ -14,4 +14,6 @@ public interface UserAuthService {
     UserAuth wxlogin(String jscode);
 
     String wxPhoneLogin(String openid, String encryptedData, String iv);
+
+    Integer getUserIdBySession(String session);
 }

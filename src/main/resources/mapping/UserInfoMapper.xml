@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.hi.weiliao.user.mapper.UserInfoMapper">
+
+    <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserInfo">
+        insert into USER_INFO (USER_ID, NAME)
+        values (#{userId}, #{name})
+    </insert>
+
+    <update id="update" parameterType="com.hi.weiliao.user.bean.UserInfo">
+        update USER_INFO
+        set
+        <if test="name != null">
+            NAME = #{name},
+        </if>
+        <if test="headIcon != null">
+            HEAD_ICON = #{headIcon},
+        </if>
+        <if test="background != null">
+            BACKGROUND = #{background},
+        </if>
+        <if test="personalSign != null">
+            PERSONAL_SIGN = #{personalSign},
+        </if>
+        <if test="sex != null">
+            SEX = #{sex},
+        </if>
+        <if test="birthday != null">
+            BIRTHDAY = #{birthday},
+        </if>
+        <if test="address != null">
+            ADDRESS = #{address},
+        </if>
+        revise_time = NOW()
+        where USER_ID = #{userId}
+    </update>
+
+    <select id="queryById" resultType="com.hi.weiliao.user.bean.UserInfo">
+        select
+            NAME,
+            HEAD_ICON,
+            BACKGROUND,
+            PERSONAL_SIGN,
+            SEX,
+            BIRTHDAY,
+            ADDRESS
+        from USER_INFO
+        where USER_ID = #{userId}
+    </select>
+
+</mapper>

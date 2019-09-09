@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/user")
+@RequestMapping(value = "/userauth")
 public class UserAuthController extends BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserAuthController.class);
@@ -24,6 +24,16 @@ public class UserAuthController extends BaseController {
     @Autowired
     private UserAuthService userAuthService;
 
+    @RequestMapping(value = "/query", method = RequestMethod.GET)
+    public ReturnObject query() {
+        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.query());
+    }
+
+    /**
+     * 账号密码注册
+     * @param register
+     * @return
+     */
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ReturnObject register(@RequestBody Map<String, String> register) {
         String phone = register.get("phone");
@@ -31,12 +41,13 @@ public class UserAuthController extends BaseController {
         if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(password)) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
         }
+        if (!phone.matches("^1\\d{10}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "手机号错误");
+        }
+        if (!password.matches("^[A-Za-z0-9\\u4E00-\\u9FA5-]{5,20}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "密码只能由英文，数字，5-20位组成");
+        }
         return new ReturnObject(ReturnCode.SUCCESS, userAuthService.register(phone, password));
-    }
-
-    @RequestMapping(value = "/query", method = RequestMethod.GET)
-    public ReturnObject query() {
-        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.query());
     }
 
     /**

@@ -10,7 +10,7 @@ import java.io.Serializable;
 public class UserAuth implements Serializable {
     private Integer id;
     private String phone;
-    private String password;
+    private String passWord;
     private String wxOpenid;
     private String session;
     private String createTime;
