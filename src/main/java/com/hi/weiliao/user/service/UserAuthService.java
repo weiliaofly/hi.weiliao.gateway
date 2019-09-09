@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface UserAuthService {
 
-    String register(String phone, String password);
+    void sendRegisterVCode(String phone);
+
+    String registerByVCode(String phone, String vCode);
 
     List<UserAuth> query();
 

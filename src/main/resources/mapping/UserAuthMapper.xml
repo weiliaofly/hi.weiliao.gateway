@@ -13,7 +13,7 @@
         <result column="revise_time" property="reviseTime" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserAuth" keyProperty="id">
+    <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserAuth" useGeneratedKeys="true" keyProperty="id">
         insert into `USER_AUTH` (`PHONE`, `PASSWORD`, `WX_OPENID`, `SESSION`)
         values (#{phone}, #{passWord}, #{wxOpenid}, #{session})
     </insert>
@@ -52,6 +52,12 @@
         select *
         from USER_AUTH
         where session = #{session}
+    </select>
+
+    <select id="getByPhone" resultMap="UserAuth" parameterType="map">
+        select *
+        from USER_AUTH
+        where phone = #{phone}
     </select>
 
 </mapper>

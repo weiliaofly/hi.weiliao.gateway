@@ -17,5 +17,7 @@ public interface UserAuthMapper {
 
     UserAuth getBySession(@Param("session") String session);
 
+    UserAuth getByPhone(@Param("phone") String phone);
+
     List<UserAuth> query();
 }

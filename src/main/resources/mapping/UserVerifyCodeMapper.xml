@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.hi.weiliao.user.mapper.UserVerifyCodeMapper">
+
+    <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserVerifyCode">
+        insert into USER_VERIFY_CODE (PHONE, VERIFY_CODE)
+        values (#{phone}, #{verifyCode})
+        ON DUPLICATE KEY UPDATE VERIFY_CODE = #{verifyCode}, CREATE_TIME = NOW()
+    </insert>
+
+    <select id="queryVaildCodeByPhone" parameterType="map" resultType="String">
+        SELECT VERIFY_CODE
+        FROM USER_VERIFY_CODE
+        WHERE PHONE = #{phone} AND now() &lt; date_add(CREATE_TIME, INTERVAL 5 MINUTE)
+    </select>
+
+</mapper>

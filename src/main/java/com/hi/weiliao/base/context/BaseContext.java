@@ -1,24 +1,29 @@
 package com.hi.weiliao.base.context;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class BaseContext {
 
-    private ThreadLocal<Map<String, Object>> context;
+    private ThreadLocal<Map<String, Object>> context = new ThreadLocal();
 
-    public BaseContext() {
-        if (context == null) {
-            context = new ThreadLocal();
-            context.set(new HashMap());
+    @Autowired
+    public Map getInstans() {
+        Map map = context.get();
+        if(map == null){
+            map = new HashMap();
+            context.set(map);
         }
+        return map;
     }
 
     protected Object get(String key) {
-        return context.get().get(key);
+        return getInstans().get(key);
     }
 
     protected void set(String key, Object value) {
-        context.get().put(key, value);
+        getInstans().put(key, value);
     }
 }

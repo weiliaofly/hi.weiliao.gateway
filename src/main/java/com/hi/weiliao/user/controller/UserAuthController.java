@@ -30,24 +30,42 @@ public class UserAuthController extends BaseController {
     }
 
     /**
-     * 账号密码注册
+     * 发送手机验证码
      * @param register
      * @return
      */
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ReturnObject register(@RequestBody Map<String, String> register) {
+    @RequestMapping(value = "/send_vcode", method = RequestMethod.POST)
+    public ReturnObject phoneRegister(@RequestBody Map<String, String> register) {
         String phone = register.get("phone");
-        String password = register.get("password");
-        if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(password)) {
+        if (StringUtils.isEmpty(phone)) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
         }
         if (!phone.matches("^1\\d{10}$")) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "手机号错误");
         }
-        if (!password.matches("^[A-Za-z0-9\\u4E00-\\u9FA5-]{5,20}$")) {
-            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "密码只能由英文，数字，5-20位组成");
+        userAuthService.sendRegisterVCode(phone);
+        return new ReturnObject(ReturnCode.SUCCESS);
+    }
+
+    /**
+     * 账号注册
+     * @param register
+     * @return
+     */
+    @RequestMapping(value = "/register_vcode", method = RequestMethod.POST)
+    public ReturnObject register(@RequestBody Map<String, String> register) {
+        String phone = register.get("phone");
+        String vCode = register.get("vcode");
+        if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(vCode)) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
         }
-        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.register(phone, password));
+        if (!phone.matches("^1\\d{10}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "手机号错误");
+        }
+        if (!vCode.matches("^\\d{6}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "验证码为6位");
+        }
+        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.registerByVCode(phone, vCode));
     }
 
     /**

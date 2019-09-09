@@ -56,7 +56,7 @@ public class BaseController {
     public ReturnObject handleExceptions(HttpServletRequest request, UserException ex) {
         StringBuilder msg = new StringBuilder();
         getRequestMessage(request, msg);
-        return new ReturnObject(ReturnCode.INTERNAL_SERVER_ERROR, ReturnCode.INTERNAL_SERVER_ERROR.getMessage(), ex.getMsg());
+        return new ReturnObject(ex.getReturnCode(), ex.getMsg());
     }
 
     @ExceptionHandler(Exception.class)
