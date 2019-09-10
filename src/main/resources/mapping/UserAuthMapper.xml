@@ -7,6 +7,7 @@
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="phone" property="phone" jdbcType="VARCHAR"/>
         <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="pw_try_times" property="pwTryTimes" jdbcType="INTEGER"/>
         <result column="wx_openid" property="wxOpenid" jdbcType="VARCHAR"/>
         <result column="session" property="session" jdbcType="VARCHAR"/>
         <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
@@ -21,26 +22,24 @@
     <update id="update" parameterType="com.hi.weiliao.user.bean.UserAuth">
         update USER_AUTH
         set
-        <if test="phone != null and phone != ''">
+        <if test="phone != null">
             phone = #{phone},
         </if>
-        <if test="password != null and password != ''">
+        <if test="password != null">
             password = #{password},
         </if>
-        <if test="wxOpenid != null and wxOpenid != ''">
+        <if test="pwTryTimes != null">
+            pw_try_times = #{pwTryTimes},
+        </if>
+        <if test="wxOpenid != null">
             wx_openid = #{wxOpenid},
         </if>
-        <if test="session != null and session != ''">
+        <if test="session != null">
             session = #{session},
         </if>
             revise_time = NOW()
         where id = #{id}
     </update>
-
-    <select id="query" resultMap="UserAuth">
-        select *
-        from USER_AUTH
-    </select>
 
     <select id="getByOpenid" resultMap="UserAuth" parameterType="map">
         select phone, session

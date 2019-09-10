@@ -4,15 +4,16 @@
 <mapper namespace="com.hi.weiliao.user.mapper.UserVerifyCodeMapper">
 
     <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserVerifyCode">
-        insert into USER_VERIFY_CODE (PHONE, VERIFY_CODE)
-        values (#{phone}, #{verifyCode})
+        insert into USER_VERIFY_CODE (PHONE, MSG_TYPE, VERIFY_CODE)
+        values (#{phone}, #{msgType}, #{verifyCode})
         ON DUPLICATE KEY UPDATE VERIFY_CODE = #{verifyCode}, CREATE_TIME = NOW()
     </insert>
 
     <select id="queryVaildCodeByPhone" parameterType="map" resultType="String">
         SELECT VERIFY_CODE
         FROM USER_VERIFY_CODE
-        WHERE PHONE = #{phone} AND now() &lt; date_add(CREATE_TIME, INTERVAL 5 MINUTE)
+        WHERE PHONE = #{phone} AND MSG_TYPE = #{msgType}
+              AND now() &lt; date_add(CREATE_TIME, INTERVAL 5 MINUTE)
     </select>
 
 </mapper>

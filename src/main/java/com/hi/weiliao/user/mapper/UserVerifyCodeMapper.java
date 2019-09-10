@@ -9,5 +9,6 @@ public interface UserVerifyCodeMapper {
 
     int insert(UserVerifyCode verifyCode);
 
-    String queryVaildCodeByPhone(@Param("phone") String phone);
+    String queryVaildCodeByPhone(@Param("phone") String phone,
+                                 @Param("msgType") Integer msgType);
 }

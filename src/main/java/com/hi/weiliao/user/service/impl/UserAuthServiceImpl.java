@@ -8,6 +8,7 @@ import com.aliyuncs.IAcsClient;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
+import com.hi.weiliao.base.bean.EnumMsgType;
 import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.config.AliConfig;
 import com.hi.weiliao.base.config.WxConfig;
@@ -25,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -52,14 +52,14 @@ public class UserAuthServiceImpl implements UserAuthService {
     private AliConfig aliConfig;
 
     @Override
-    public void sendRegisterVCode(String phone) {
+    public void sendVCode(String phone, EnumMsgType msgType) {
 
         UserAuth userAuth = userAuthMapper.getByPhone(phone);
-        if(userAuth != null){
+        if (userAuth != null) {
             throw new UserException(ReturnCode.BAD_REQUEST, "该用户已注册");
         }
-        String oldCode = codeMapper.queryVaildCodeByPhone(phone);
-        if(!StringUtils.isEmpty(oldCode)){
+        String oldCode = codeMapper.queryVaildCodeByPhone(phone, msgType.id);
+        if (!StringUtils.isEmpty(oldCode)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "验证码未过期，请稍后重试");
         }
         DefaultProfile profile = DefaultProfile.getProfile("cn-shenzhen", aliConfig.getAccessKeyId(), aliConfig.getAccessKeySecret());
@@ -73,13 +73,13 @@ public class UserAuthServiceImpl implements UserAuthService {
         request.putQueryParameter("RegionId", "cn-shenzhen");
         request.putQueryParameter("PhoneNumbers", phone);
         request.putQueryParameter("SignName", "微撩");
-        request.putQueryParameter("TemplateCode", aliConfig.getRegisterMsgId());
+        request.putQueryParameter("TemplateCode", msgType.code);
         request.putQueryParameter("TemplateParam", "{\"code\":\"" + verifyCode + "\"}");
         try {
             CommonResponse response = client.getCommonResponse(request);
-            Map result =  (Map) JSONObject.parse(response.getData());
-            if(!"OK".equals(result.get("Code"))) {
-                throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, (String)result.get("Message"));
+            Map result = (Map) JSONObject.parse(response.getData());
+            if (!"OK".equals(result.get("Code"))) {
+                throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, (String) result.get("Message"));
             }
             UserVerifyCode code = new UserVerifyCode();
             code.setPhone(phone);
@@ -93,7 +93,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public String registerByVCode(String phone, String vCode) {
 
-        String sendCode = codeMapper.queryVaildCodeByPhone(phone);
+        String sendCode = codeMapper.queryVaildCodeByPhone(phone, EnumMsgType.REGISTER.id);
         if (StringUtils.isEmpty(sendCode) || !sendCode.equals(vCode)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "验证码过期或无效");
         }
@@ -103,10 +103,10 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public void setPassword(Integer userId, String password) {
         UserAuth exist = userAuthMapper.getById(userId);
-        if(exist == null){
+        if (exist == null) {
             throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
         }
-        if(!StringUtils.isEmpty(exist.getPassword())){
+        if (!StringUtils.isEmpty(exist.getPassword())) {
             throw new UserException(ReturnCode.BAD_REQUEST, "需要先短信验证才能重置密码");
         }
         UserAuth updateUA = new UserAuth();
@@ -118,12 +118,12 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public void changePassword(Integer userId, String oldPassword, String newPassword) {
         UserAuth exist = userAuthMapper.getById(userId);
-        if(exist == null){
+        if (exist == null) {
             throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
         }
         oldPassword = Md5Utils.encrypt(oldPassword);
         newPassword = Md5Utils.encrypt(newPassword);
-        if(!oldPassword.equals(exist.getPassword())){
+        if (!oldPassword.equals(exist.getPassword())) {
             throw new UserException(ReturnCode.BAD_REQUEST, "密码错误");
         }
         UserAuth updateUA = new UserAuth();
@@ -136,10 +136,10 @@ public class UserAuthServiceImpl implements UserAuthService {
     public void resetPassword(String phone, String vCode) {
 
         UserAuth exist = userAuthMapper.getByPhone(phone);
-        if(exist == null){
+        if (exist == null) {
             throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
         }
-        String sendCode = codeMapper.queryVaildCodeByPhone(phone);
+        String sendCode = codeMapper.queryVaildCodeByPhone(phone, EnumMsgType.RESET_PASSWORD.id);
         if (StringUtils.isEmpty(sendCode) || !sendCode.equals(vCode)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "验证码过期或无效");
         }
@@ -149,9 +149,53 @@ public class UserAuthServiceImpl implements UserAuthService {
         userAuthMapper.update(updateUA);
     }
 
+
     @Override
-    public List<UserAuth> query() {
-        return userAuthMapper.query();
+    public String passwordlogin(String phone, String password) {
+        UserAuth exist = userAuthMapper.getByPhone(phone);
+        if (exist == null) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
+        }
+        if (exist.getPwTryTimes() >= 3) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "密码已被锁定，请使用短信验证登录");
+        }
+        String existPW = exist.getPassword();
+        if (StringUtils.isEmpty(existPW)) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "尚未设置密码，请用短信验证登录");
+        }
+        password = Md5Utils.encrypt(password);
+        if (!existPW.equals(password)) {
+            UserAuth updateUA = new UserAuth();
+            updateUA.setId(exist.getId());
+            updateUA.setPwTryTimes(updateUA.getPwTryTimes() + 1);
+            userAuthMapper.update(updateUA);
+            throw new UserException(ReturnCode.BAD_REQUEST, "密码错误");
+        }
+        String session = createSession();
+        UserAuth updateUA = new UserAuth();
+        updateUA.setId(exist.getId());
+        updateUA.setSession(session);
+        userAuthMapper.update(updateUA);
+        return session;
+    }
+
+    @Override
+    public String vcodelogin(String phone, String vCode) {
+        UserAuth exist = userAuthMapper.getByPhone(phone);
+        if (exist == null) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
+        }
+        String sendCode = codeMapper.queryVaildCodeByPhone(phone, EnumMsgType.LOGIN.id);
+        if (StringUtils.isEmpty(sendCode) || !sendCode.equals(vCode)) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "验证码过期或无效");
+        }
+        String session = createSession();
+        UserAuth updateUA = new UserAuth();
+        updateUA.setId(exist.getId());
+        updateUA.setPwTryTimes(0);
+        updateUA.setSession(session);
+        userAuthMapper.update(updateUA);
+        return session;
     }
 
     @Override
@@ -218,9 +262,9 @@ public class UserAuthServiceImpl implements UserAuthService {
         return 0;
     }
 
-    private String registerByPhone(String phone, String wxOpenId){
+    private String registerByPhone(String phone, String wxOpenId) {
         UserAuth exUserAuth = userAuthMapper.getByPhone(phone);
-        if(exUserAuth != null){
+        if (exUserAuth != null) {
             throw new UserException(ReturnCode.BAD_REQUEST, "该用户已注册");
         }
         String session = "";

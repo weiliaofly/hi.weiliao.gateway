@@ -20,6 +20,4 @@ public interface UserAuthMapper {
     UserAuth getByPhone(@Param("phone") String phone);
 
     UserAuth getById(@Param("id") int id);
-
-    List<UserAuth> query();
 }

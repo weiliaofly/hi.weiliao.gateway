@@ -1,5 +1,6 @@
 package com.hi.weiliao.user.service;
 
+import com.hi.weiliao.base.bean.EnumMsgType;
 import com.hi.weiliao.user.bean.UserAuth;
 
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 
 public interface UserAuthService {
 
-    void sendRegisterVCode(String phone);
+    void sendVCode(String phone, EnumMsgType msgType);
 
     String registerByVCode(String phone, String vCode);
 
@@ -17,7 +18,9 @@ public interface UserAuthService {
 
     void resetPassword(String phone, String vCode);
 
-    List<UserAuth> query();
+    String passwordlogin(String phone, String password);
+
+    String vcodelogin(String phone, String vCode);
 
     UserAuth wxlogin(String jscode);
 

@@ -11,6 +11,7 @@ public class UserAuth implements Serializable {
     private Integer id;
     private String phone;
     private String password;
+    private Integer pwTryTimes;
     private String wxOpenid;
     private String session;
     private String createTime;

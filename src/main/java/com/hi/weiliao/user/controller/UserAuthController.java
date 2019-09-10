@@ -1,6 +1,7 @@
 package com.hi.weiliao.user.controller;
 
 import com.hi.weiliao.base.BaseController;
+import com.hi.weiliao.base.bean.EnumMsgType;
 import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.bean.ReturnObject;
 import com.hi.weiliao.user.UserContext;
@@ -28,11 +29,6 @@ public class UserAuthController extends BaseController {
     @Autowired
     private UserContext userContext;
 
-    @RequestMapping(value = "/query", method = RequestMethod.GET)
-    public ReturnObject query() {
-        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.query());
-    }
-
     /**
      * 发送手机验证码
      * @param register
@@ -41,13 +37,21 @@ public class UserAuthController extends BaseController {
     @RequestMapping(value = "/send_vcode", method = RequestMethod.POST)
     public ReturnObject phoneRegister(@RequestBody Map<String, String> register) {
         String phone = register.get("phone");
-        if (StringUtils.isEmpty(phone)) {
+        String type = register.get("type");
+        if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(type)) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
         }
         if (!phone.matches("^1\\d{10}$")) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "手机号错误");
         }
-        userAuthService.sendRegisterVCode(phone);
+        if (!type.matches("^\\d{1}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "验证码类型错误");
+        }
+        EnumMsgType msgType = EnumMsgType.getById(Integer.valueOf(type));
+        if(null == msgType){
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "验证码类型不支持");
+        }
+        userAuthService.sendVCode(phone, msgType);
         return new ReturnObject(ReturnCode.SUCCESS);
     }
 
@@ -130,6 +134,22 @@ public class UserAuthController extends BaseController {
         }
         userAuthService.resetPassword(phone, vCode);
         return new ReturnObject(ReturnCode.SUCCESS);
+    }
+
+    /**
+     * 短信验证码登录
+     *
+     * @param wxlogin
+     * @return
+     */
+    @RequestMapping(value = "/vcode_login", method = RequestMethod.POST)
+    public ReturnObject vcodelogin(@RequestBody Map<String, String> wxlogin) {
+        String phone = wxlogin.get("phone");
+        String vcode = wxlogin.get("vcode");
+        if (StringUtils.isEmpty(vcode) || StringUtils.isEmpty(phone)) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
+        }
+        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.vcodelogin(phone, vcode));
     }
 
     /**
