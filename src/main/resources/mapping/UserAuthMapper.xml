@@ -16,7 +16,7 @@
 
     <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserAuth" useGeneratedKeys="true" keyProperty="id">
         insert into `USER_AUTH` (`PHONE`, `PASSWORD`, `WX_OPENID`, `SESSION`)
-        values (#{phone}, #{passWord}, #{wxOpenid}, #{session})
+        values (#{phone}, #{password}, #{wxOpenid}, #{session})
     </insert>
 
     <update id="update" parameterType="com.hi.weiliao.user.bean.UserAuth">

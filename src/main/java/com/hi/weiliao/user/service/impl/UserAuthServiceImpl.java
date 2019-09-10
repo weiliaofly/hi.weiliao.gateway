@@ -83,6 +83,7 @@ public class UserAuthServiceImpl implements UserAuthService {
             }
             UserVerifyCode code = new UserVerifyCode();
             code.setPhone(phone);
+            code.setMsgType(msgType.id);
             code.setVerifyCode(verifyCode);
             codeMapper.insert(code);
         } catch (ClientException e) {

@@ -7,6 +7,7 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserVerifyCode {
     private String phone;
+    private Integer msgType;
     private String verifyCode;
     private String createTime;
 }
