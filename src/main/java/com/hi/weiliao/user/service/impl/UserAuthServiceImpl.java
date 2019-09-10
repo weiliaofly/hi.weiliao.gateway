@@ -53,9 +53,7 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Override
     public void sendVCode(String phone, EnumMsgType msgType) {
-
-        UserAuth userAuth = userAuthMapper.getByPhone(phone);
-        if (userAuth != null) {
+        if (checkExist(phone)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "该用户已注册");
         }
         String oldCode = codeMapper.queryVaildCodeByPhone(phone, msgType.id);
@@ -92,13 +90,13 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
-    public String registerByVCode(String phone, String vCode) {
+    public String registerByVCode(String phone, String vCode, String password) {
 
         String sendCode = codeMapper.queryVaildCodeByPhone(phone, EnumMsgType.REGISTER.id);
         if (StringUtils.isEmpty(sendCode) || !sendCode.equals(vCode)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "验证码过期或无效");
         }
-        return registerByPhone(phone, "");
+        return register(phone, "", password);
     }
 
     @Override
@@ -249,7 +247,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         } catch (Exception e) {
             throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "手机号解密出错");
         }
-        String session = registerByPhone(phone, openid);
+        String session = register(phone, openid, "");
         openidToSessionKey.remove(openid);
         return session;
     }
@@ -263,9 +261,8 @@ public class UserAuthServiceImpl implements UserAuthService {
         return 0;
     }
 
-    private String registerByPhone(String phone, String wxOpenId) {
-        UserAuth exUserAuth = userAuthMapper.getByPhone(phone);
-        if (exUserAuth != null) {
+    private String register(String phone, String wxOpenId, String password) {
+        if (checkExist(phone)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "该用户已注册");
         }
         String session = "";
@@ -273,10 +270,21 @@ public class UserAuthServiceImpl implements UserAuthService {
         session = createSession();
         userAuth.setWxOpenid(wxOpenId);
         userAuth.setPhone(phone);
+        if (!StringUtils.isEmpty(password)) {
+            userAuth.setPassword(Md5Utils.encrypt(password));
+        }
         userAuth.setSession(session);
         userAuthMapper.insert(userAuth);
         userInfoService.initUserInfo(userAuth.getId(), phone);
         return session;
+    }
+
+    private boolean checkExist(String phone){
+        UserAuth exUserAuth = userAuthMapper.getByPhone(phone);
+        if (exUserAuth != null) {
+            return true;
+        }
+        return false;
     }
 
     private String createSession() {

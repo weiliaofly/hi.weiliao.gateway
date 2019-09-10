@@ -11,5 +11,4 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class AliConfig {
     private String accessKeyId;
     private String accessKeySecret;
-    private String registerMsgId;
 }

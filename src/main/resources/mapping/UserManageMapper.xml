@@ -17,6 +17,10 @@
     <select id="query" resultMap="UserAuth">
         select *
         from USER_AUTH
+        where 1 = 1
+        <if test="phone != null and phone != ''">
+            phone = #{phone}
+        </if>
     </select>
 
     <delete id="deleteByPhone" parameterType="map">

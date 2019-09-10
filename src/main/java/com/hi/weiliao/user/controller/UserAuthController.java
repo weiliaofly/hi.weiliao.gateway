@@ -64,7 +64,8 @@ public class UserAuthController extends BaseController {
     public ReturnObject vcRegister(@RequestBody Map<String, String> register) {
         String phone = register.get("phone");
         String vCode = register.get("vcode");
-        if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(vCode)) {
+        String password = register.get("password");
+        if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(vCode) || StringUtils.isEmpty(password)) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
         }
         if (!phone.matches("^1\\d{10}$")) {
@@ -73,7 +74,10 @@ public class UserAuthController extends BaseController {
         if (!vCode.matches("^\\d{6}$")) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "验证码为6位");
         }
-        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.registerByVCode(phone, vCode));
+        if (!password.matches("^[A-Za-z0-9\\u4E00-\\u9FA5-]{5,20}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "密码只能由英文，数字，5-20位组成");
+        }
+        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.registerByVCode(phone, vCode, password));
     }
 
     /**

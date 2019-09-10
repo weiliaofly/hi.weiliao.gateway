@@ -10,7 +10,7 @@ public interface UserAuthService {
 
     void sendVCode(String phone, EnumMsgType msgType);
 
-    String registerByVCode(String phone, String vCode);
+    String registerByVCode(String phone, String vCode, String password);
 
     void setPassword(Integer userId, String password);
 

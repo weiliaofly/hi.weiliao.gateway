@@ -5,10 +5,9 @@ import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.bean.ReturnObject;
 import com.hi.weiliao.user.service.UserManageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.constraints.Size;
 
 @RestController
 @RequestMapping(value = "/usermanage")
@@ -18,8 +17,10 @@ public class UserManageController extends BaseController {
     private UserManageService userManageService;
 
     @RequestMapping(value = "/query", method = RequestMethod.GET)
-    public ReturnObject query() {
-        return new ReturnObject(ReturnCode.SUCCESS, userManageService.query());
+    public ReturnObject queryList(@RequestParam(required = false) String phone,
+                                  @RequestParam Integer page_no,
+                                  @RequestParam @Size(min = 10, max = 100, message = "page_size只能为10-100") Integer page_size) {
+        return new ReturnObject(ReturnCode.SUCCESS, userManageService.query(phone, page_no, page_size));
     }
 
     @RequestMapping(value = "/{phone}", method = RequestMethod.DELETE)
