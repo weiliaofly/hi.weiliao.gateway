@@ -54,11 +54,11 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public void sendVCode(String phone, EnumMsgType msgType) {
         UserAuth userAuth = userAuthMapper.getByPhone(phone);
-        if(EnumMsgType.REGISTER == msgType){
+        if (EnumMsgType.REGISTER == msgType) {
             if (userAuth != null) {
                 throw new UserException(ReturnCode.BAD_REQUEST, "该用户已注册");
             }
-        } else if (EnumMsgType.LOGIN == msgType){
+        } else if (EnumMsgType.LOGIN == msgType) {
             if (userAuth == null) {
                 throw new UserException(ReturnCode.BAD_REQUEST, "该用户未注册");
             }
@@ -290,7 +290,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         return session;
     }
 
-    private boolean checkExist(String phone){
+    private boolean checkExist(String phone) {
         UserAuth exUserAuth = userAuthMapper.getByPhone(phone);
         if (exUserAuth != null) {
             return true;

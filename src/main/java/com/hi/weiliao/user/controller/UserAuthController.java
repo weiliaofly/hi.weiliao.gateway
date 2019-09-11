@@ -31,6 +31,7 @@ public class UserAuthController extends BaseController {
 
     /**
      * 发送手机验证码
+     *
      * @param register
      * @return
      */
@@ -48,7 +49,7 @@ public class UserAuthController extends BaseController {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "验证码类型错误");
         }
         EnumMsgType msgType = EnumMsgType.getById(Integer.valueOf(type));
-        if(null == msgType){
+        if (null == msgType) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "验证码类型不支持");
         }
         userAuthService.sendVCode(phone, msgType);
@@ -57,6 +58,7 @@ public class UserAuthController extends BaseController {
 
     /**
      * 账号注册
+     *
      * @param register
      * @return
      */
@@ -82,6 +84,7 @@ public class UserAuthController extends BaseController {
 
     /**
      * 初次登陆设置密码
+     *
      * @param register
      * @return
      */
@@ -100,6 +103,7 @@ public class UserAuthController extends BaseController {
 
     /**
      * 修改密码
+     *
      * @param register
      * @return
      */
@@ -120,6 +124,7 @@ public class UserAuthController extends BaseController {
 
     /**
      * 短信验证码重置密码（忘记密码）
+     *
      * @param register
      * @return
      */
