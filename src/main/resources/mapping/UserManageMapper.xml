@@ -23,11 +23,14 @@
         </if>
     </select>
 
-    <delete id="deleteByPhone" parameterType="map">
+    <delete id="deleteAuthByPhone" parameterType="map">
         DELETE from USER_AUTH
-        where phone = #{phone};
+        where id = #{userId}
+    </delete>
+
+    <delete id="deleteInfoByPhone" parameterType="map">
         DELETE from USER_INFO
-        where phone = #{phone}
+        where user_id = #{userId}
     </delete>
 
 </mapper>

@@ -141,6 +141,22 @@ public class UserAuthController extends BaseController {
     }
 
     /**
+     * 账号密码登录
+     *
+     * @param pwlogin
+     * @return
+     */
+    @RequestMapping(value = "/password_login", method = RequestMethod.POST)
+    public ReturnObject pwlogin(@RequestBody Map<String, String> pwlogin) {
+        String phone = pwlogin.get("phone");
+        String password = pwlogin.get("password");
+        if (StringUtils.isEmpty(password) || StringUtils.isEmpty(phone)) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
+        }
+        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.passwordlogin(phone, password));
+    }
+
+    /**
      * 短信验证码登录
      *
      * @param wxlogin

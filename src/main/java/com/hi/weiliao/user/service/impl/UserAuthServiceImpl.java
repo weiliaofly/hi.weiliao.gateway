@@ -53,8 +53,19 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Override
     public void sendVCode(String phone, EnumMsgType msgType) {
-        if (checkExist(phone)) {
-            throw new UserException(ReturnCode.BAD_REQUEST, "该用户已注册");
+        UserAuth userAuth = userAuthMapper.getByPhone(phone);
+        if(EnumMsgType.REGISTER == msgType){
+            if (userAuth != null) {
+                throw new UserException(ReturnCode.BAD_REQUEST, "该用户已注册");
+            }
+        } else if (EnumMsgType.LOGIN == msgType){
+            if (userAuth == null) {
+                throw new UserException(ReturnCode.BAD_REQUEST, "该用户未注册");
+            }
+        } else {
+            if (userAuth == null) {
+                throw new UserException(ReturnCode.BAD_REQUEST, "该用户未注册");
+            }
         }
         String oldCode = codeMapper.queryVaildCodeByPhone(phone, msgType.id);
         if (!StringUtils.isEmpty(oldCode)) {

@@ -11,5 +11,8 @@ public interface UserManageMapper {
 
     List<UserAuth> query(@Param("phone")String phone);
 
-    int deleteByPhone(@Param("phone")String phone);
+    int deleteAuthByPhone(@Param("userId")int userId);
+
+    int deleteInfoByPhone(@Param("userId")int userId);
+
 }
