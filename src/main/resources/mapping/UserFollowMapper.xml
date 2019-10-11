@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.hi.weiliao.user.mapper.UserFollowMapper">
+
+    <insert id="insert" parameterType="map">
+        insert into `USER_FOLLOW` (`USER_ID`, `FOLLOW_ID`)
+        values (#{userId}, #{followId})
+    </insert>
+
+    <delete id="delete" parameterType="map">
+        DELETE FROM USER_FOLLOW
+        WHERE USER_ID = #{userId} and FOLLOW_ID = #{followId}
+    </delete>
+
+    <select id="getByUserId" resultType="int" parameterType="map">
+        select FOLLOW_ID
+        from USER_FOLLOW
+        where USER_ID = #{userId}
+    </select>
+
+    <select id="getByFollowId" resultType="int" parameterType="map">
+        select USER_ID
+        from USER_FOLLOW
+        where FOLLOW_ID = #{followId}
+    </select>
+
+</mapper>

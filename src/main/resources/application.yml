@@ -1,18 +1,18 @@
 server:
-  port: 8888
+  port: 8889
 
 spring:
   datasource:
-    jdbcUrl:
+    jdbcUrl: jdbc:mysql://49.235.164.57:3306/weiliao_user?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&autoReconnect=true
     driverClass: com.mysql.jdbc.Driver
-    user:
-    password:
+    user: root
+    password: 1c732d4b9bc24c6a
 
 wxconfig:
-  appId:
-  appSecret:
+  appId: wxedfcddc996ccc43e
+  appSecret: 9312ee4d79d6435cbcf67d19c13d8784
 
 aliconfig:
-  accessKeyId:
-  accessKeySecret:
-  registerMsgId:
+  accessKeyId: LTAI4FhM6YePvCKCmZYitMwP
+  accessKeySecret: T6Ddxgf4Zkpt2VaNM3YdhLSYXd3Jcx
+  registerMsgId: SMS_173760507
