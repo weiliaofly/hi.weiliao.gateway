@@ -6,6 +6,7 @@
     <insert id="insert" parameterType="map">
         insert into `USER_FOLLOW` (`USER_ID`, `FOLLOW_ID`)
         values (#{userId}, #{followId})
+        ON DUPLICATE key update USER_ID = #{userId}
     </insert>
 
     <delete id="delete" parameterType="map">

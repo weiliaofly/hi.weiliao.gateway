@@ -2,6 +2,7 @@ package com.hi.weiliao.user.service;
 
 import com.hi.weiliao.base.bean.EnumMsgType;
 import com.hi.weiliao.user.bean.UserAuth;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
