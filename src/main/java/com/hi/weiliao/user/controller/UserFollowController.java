@@ -37,6 +37,7 @@ public class UserFollowController extends BaseController {
         if (StringUtils.isEmpty(followId) || !followId.matches("^\\d$")) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
         }
-        userFollowService.follow(userContext.getUserId(), followId);
+        userFollowService.follow(userContext.getUserId(), Integer.valueOf(followId));
+        return new ReturnObject(ReturnCode.SUCCESS);
     }
 }
