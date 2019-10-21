@@ -18,7 +18,7 @@ public class UserManageController extends BaseController {
 
     @RequestMapping(value = "/query", method = RequestMethod.GET)
     public ReturnObject queryList(@RequestParam(required = false) String phone,
-                                  @RequestParam Integer page_no,
+                                  @RequestParam @Size(min = 1, max = 1000, message = "page_no只能为1-1000") Integer page_no,
                                   @RequestParam @Size(min = 10, max = 100, message = "page_size只能为10-100") Integer page_size) {
         return new ReturnObject(ReturnCode.SUCCESS, userManageService.query(phone, page_no, page_size));
     }

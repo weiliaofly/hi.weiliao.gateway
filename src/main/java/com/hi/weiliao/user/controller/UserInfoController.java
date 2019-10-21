@@ -7,10 +7,7 @@ import com.hi.weiliao.user.UserContext;
 import com.hi.weiliao.user.bean.UserInfo;
 import com.hi.weiliao.user.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/userinfo")
@@ -38,12 +35,28 @@ public class UserInfoController extends BaseController {
     }
 
     /**
+     * 获取指定用户信息
+     *
+     * @return
+     */
+    @RequestMapping(value = "/find", method = RequestMethod.GET)
+    public ReturnObject getOther(@RequestParam Integer user_id) {
+        UserInfo userInfo = userInfoService.getUserInfoById(user_id);
+        if (null == userInfo) {
+            return new ReturnObject(ReturnCode.NO_CONTENT);
+        }
+        return new ReturnObject(ReturnCode.SUCCESS, userInfo);
+    }
+
+    /**
      * 修改当前用户信息
      *
      * @return
      */
     @RequestMapping(value = "", method = RequestMethod.PUT)
     public ReturnObject get(@RequestBody UserInfo userInfo) {
+        int userId = userContext.getUserId();
+        userInfo.setUserId(userId);
         int count = userInfoService.updateUserInfo(userInfo);
         if (count == 0) {
             return new ReturnObject(ReturnCode.NO_CHANGE);

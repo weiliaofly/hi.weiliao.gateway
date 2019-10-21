@@ -38,6 +38,7 @@
 
     <select id="queryById" resultType="com.hi.weiliao.user.bean.UserInfo">
         select
+            USER_ID,
             NAME,
             HEAD_ICON,
             BACKGROUND,

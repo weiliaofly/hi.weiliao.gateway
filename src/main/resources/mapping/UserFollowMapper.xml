@@ -26,4 +26,48 @@
         where FOLLOW_ID = #{followId}
     </select>
 
+    <select id="countFollow" resultType="map" parameterType="map">
+        select a.follow, b.fans from
+        (select
+            count(*) as follow
+        from USER_FOLLOW
+        where USER_ID = #{userId}) a,
+        (select
+            count(*) as fans
+        from USER_FOLLOW
+        where FOLLOW_ID = #{userId}) b
+    </select>
+
+    <select id="queryFollow" resultType="com.hi.weiliao.user.bean.UserInfo" parameterType="map">
+        select
+            USER_ID,
+            NAME,
+            HEAD_ICON,
+            BACKGROUND,
+            PERSONAL_SIGN,
+            SEX,
+            BIRTHDAY,
+            ADDRESS
+        from USER_FOLLOW uf
+            LEFT JOIN USER_INFO ui
+            on uf.FOLLOW_ID = ui.USER_ID
+        where uf.USER_ID = #{followId}
+    </select>
+
+    <select id="queryFans" resultType="com.hi.weiliao.user.bean.UserInfo" parameterType="map">
+        select
+            USER_ID,
+            NAME,
+            HEAD_ICON,
+            BACKGROUND,
+            PERSONAL_SIGN,
+            SEX,
+            BIRTHDAY,
+            ADDRESS
+        from USER_FOLLOW uf
+            LEFT JOIN USER_INFO ui
+                on uf.USER_ID = ui.USER_ID
+        where uf.FOLLOW_ID = #{followId}
+    </select>
+
 </mapper>
