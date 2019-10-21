@@ -40,34 +40,34 @@
 
     <select id="queryFollow" resultType="com.hi.weiliao.user.bean.UserInfo" parameterType="map">
         select
-            USER_ID,
-            NAME,
-            HEAD_ICON,
-            BACKGROUND,
-            PERSONAL_SIGN,
-            SEX,
-            BIRTHDAY,
-            ADDRESS
+            ui.USER_ID,
+            ui.NAME,
+            ui.HEAD_ICON,
+            ui.BACKGROUND,
+            ui.PERSONAL_SIGN,
+            ui.SEX,
+            ui.BIRTHDAY,
+            ui.ADDRESS
         from USER_FOLLOW uf
             LEFT JOIN USER_INFO ui
             on uf.FOLLOW_ID = ui.USER_ID
-        where uf.USER_ID = #{followId}
+        where uf.USER_ID = #{userId}
     </select>
 
     <select id="queryFans" resultType="com.hi.weiliao.user.bean.UserInfo" parameterType="map">
         select
-            USER_ID,
-            NAME,
-            HEAD_ICON,
-            BACKGROUND,
-            PERSONAL_SIGN,
-            SEX,
-            BIRTHDAY,
-            ADDRESS
+            ui.USER_ID,
+            ui.NAME,
+            ui.HEAD_ICON,
+            ui.BACKGROUND,
+            ui.PERSONAL_SIGN,
+            ui.SEX,
+            ui.BIRTHDAY,
+            ui.ADDRESS
         from USER_FOLLOW uf
             LEFT JOIN USER_INFO ui
                 on uf.USER_ID = ui.USER_ID
-        where uf.FOLLOW_ID = #{followId}
+        where uf.FOLLOW_ID = #{userId}
     </select>
 
 </mapper>
