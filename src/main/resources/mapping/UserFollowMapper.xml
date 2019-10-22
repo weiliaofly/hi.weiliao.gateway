@@ -14,6 +14,12 @@
         WHERE USER_ID = #{userId} and FOLLOW_ID = #{followId}
     </delete>
 
+    <select id="exist" resultType="int" parameterType="map">
+        select count(*)
+        from USER_FOLLOW
+        where USER_ID = #{userId} and FOLLOW_ID = #{followId}
+    </select>
+
     <select id="getByUserId" resultType="int" parameterType="map">
         select FOLLOW_ID
         from USER_FOLLOW

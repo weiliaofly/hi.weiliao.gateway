@@ -31,6 +31,11 @@ public class UserFollowServiceImpl implements UserFollowService {
     }
 
     @Override
+    public boolean exist(int userId, int followId) {
+        return userFollowMapper.exist(userId, followId) == 0 ? false : true;
+    }
+
+    @Override
     public PageInfo queryFollow(int userId, int pageNo, int pageSize) {
         PageHelper.startPage(pageNo, pageSize);
         return new PageInfo(userFollowMapper.queryFollow(userId));

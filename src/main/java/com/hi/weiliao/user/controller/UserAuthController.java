@@ -97,7 +97,7 @@ public class UserAuthController extends BaseController {
         if (!password.matches("^[A-Za-z0-9\\u4E00-\\u9FA5-]{5,20}$")) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "密码只能由英文，数字，5-20位组成");
         }
-        userAuthService.setPassword(userContext.getUserId(), password);
+        userAuthService.setPassword(userContext.getUserIdAndCheck(), password);
         return new ReturnObject(ReturnCode.SUCCESS);
     }
 
@@ -118,7 +118,7 @@ public class UserAuthController extends BaseController {
                 || !oldPassword.matches("^[A-Za-z0-9\\u4E00-\\u9FA5-]{5,20}$")) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "密码只能由英文，数字，5-20位组成");
         }
-        userAuthService.changePassword(userContext.getUserId(), oldPassword, newPassword);
+        userAuthService.changePassword(userContext.getUserIdAndCheck(), oldPassword, newPassword);
         return new ReturnObject(ReturnCode.SUCCESS);
     }
 

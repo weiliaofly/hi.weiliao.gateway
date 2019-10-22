@@ -26,7 +26,7 @@ public class UserInfoController extends BaseController {
      */
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ReturnObject get() {
-        int userId = userContext.getUserId();
+        int userId = userContext.getUserIdAndCheck();
         UserInfo userInfo = userInfoService.getUserInfoById(userId);
         if (null == userInfo) {
             return new ReturnObject(ReturnCode.NO_CONTENT);
@@ -55,7 +55,7 @@ public class UserInfoController extends BaseController {
      */
     @RequestMapping(value = "", method = RequestMethod.PUT)
     public ReturnObject get(@RequestBody UserInfo userInfo) {
-        int userId = userContext.getUserId();
+        int userId = userContext.getUserIdAndCheck();
         userInfo.setUserId(userId);
         int count = userInfoService.updateUserInfo(userInfo);
         if (count == 0) {

@@ -10,6 +10,8 @@ public interface UserFollowService {
 
     int cancelFollow(int userId, int followId);
 
+    boolean exist(int userId, int followId);
+
     Map countFollow(int userId);
 
     PageInfo queryFollow(int userId, int pageNo, int pageSize);

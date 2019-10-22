@@ -16,6 +16,9 @@ public interface UserFollowMapper {
     int delete(@Param("userId") int userId,
                @Param("followId") int followId);
 
+    int exist(@Param("userId") int userId,
+              @Param("followId") int followId);
+
     List<Integer> getByUserId(@Param("userId") int userId);
 
     List<Integer> getByFollowId(@Param("followId") int followId);

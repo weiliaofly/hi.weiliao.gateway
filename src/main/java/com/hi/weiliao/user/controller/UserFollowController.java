@@ -36,7 +36,7 @@ public class UserFollowController extends BaseController {
         if (StringUtils.isEmpty(followId) || !followId.matches("^\\d$")) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
         }
-        int result = userFollowService.follow(userContext.getUserId(), Integer.valueOf(followId));
+        int result = userFollowService.follow(userContext.getUserIdAndCheck(), Integer.valueOf(followId));
         if (result == 0) {
             return new ReturnObject(ReturnCode.NO_CHANGE);
         }
@@ -55,7 +55,7 @@ public class UserFollowController extends BaseController {
         if (StringUtils.isEmpty(followId) || !followId.matches("^\\d$")) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
         }
-        int result = userFollowService.cancelFollow(userContext.getUserId(), Integer.valueOf(followId));
+        int result = userFollowService.cancelFollow(userContext.getUserIdAndCheck(), Integer.valueOf(followId));
         if (result == 0) {
             return new ReturnObject(ReturnCode.NO_CHANGE);
         }
@@ -71,6 +71,8 @@ public class UserFollowController extends BaseController {
     @RequestMapping(value = "/count", method = RequestMethod.GET)
     public ReturnObject count(@RequestParam Integer user_id) {
         Map result = userFollowService.countFollow(user_id);
+        int curUserId = userContext.getUserId();
+        result.put("is_follow", userFollowService.exist(curUserId, user_id));
         return new ReturnObject(ReturnCode.SUCCESS, result);
     }
 

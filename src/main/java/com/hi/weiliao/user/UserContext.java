@@ -10,14 +10,24 @@ public class UserContext extends BaseContext {
 
     private static final String USER_ID = "USER_ID";
 
+    private static final int NO_LOGIN_ID = 0;
+
     public void setUserId(Integer userId) {
         set(USER_ID, userId);
     }
 
-    public Integer getUserId() {
+    public Integer getUserIdAndCheck() {
         Integer userId = (Integer) get(USER_ID);
         if (null == userId || userId == 0) {
-            throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "获取userid失败");
+            throw new UserException(ReturnCode.BAD_REQUEST, "尚未登录或过期，请重新登录！");
+        }
+        return userId;
+    }
+
+    public Integer getUserId() {
+        Integer userId = (Integer) get(USER_ID);
+        if (null == userId) {
+            return 0;
         }
         return userId;
     }
