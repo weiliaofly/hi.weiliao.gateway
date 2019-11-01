@@ -255,6 +255,10 @@ public class UserAuthServiceImpl implements UserAuthService {
         String phone = "";
         try {
             phone = CipherUtils.decryptS5(encryptedData, "UTF-8", sessionKey, iv);
+            logger.debug("phone:" + phone);
+            if (!"^1\\d{10}$".equals(phone)) {
+                throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "手机号格式不支持：" + phone);
+            }
         } catch (Exception e) {
             throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "手机号解密出错");
         }
