@@ -15,6 +15,7 @@ import com.hi.weiliao.base.config.WxConfig;
 import com.hi.weiliao.base.exception.UserException;
 import com.hi.weiliao.base.utils.*;
 import com.hi.weiliao.user.bean.UserAuth;
+import com.hi.weiliao.user.bean.UserInfo;
 import com.hi.weiliao.user.bean.UserVerifyCode;
 import com.hi.weiliao.user.mapper.UserAuthMapper;
 import com.hi.weiliao.user.mapper.UserVerifyCodeMapper;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -107,7 +109,9 @@ public class UserAuthServiceImpl implements UserAuthService {
         if (StringUtils.isEmpty(sendCode) || !sendCode.equals(vCode)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "验证码过期或无效");
         }
-        return register(phone, "", password);
+        UserAuth userAuth = register(phone, "", password);
+        userInfoService.initUserInfo(userAuth.getId(), null);
+        return userAuth.getSession();
     }
 
     @Override
@@ -262,9 +266,44 @@ public class UserAuthServiceImpl implements UserAuthService {
         } catch (Exception e) {
             throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "手机号解密出错");
         }
-        String session = register(phone, openid, "");
+        UserAuth userAuth = register(phone, openid, "");
+        userInfoService.initUserInfo(userAuth.getId(), null);
         openidToSessionKey.remove(openid);
-        return session;
+        return userAuth.getSession();
+    }
+
+    @Override
+    public String wxInfoLogin(String openid, String encryptedData, String iv, String phone, String vCode, String password) {
+        String sessionKey = openidToSessionKey.get(openid);
+        if (StringUtils.isEmpty(sessionKey)) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "需要先调用微信快捷登录");
+        }
+
+
+        String sendCode = codeMapper.queryVaildCodeByPhone(phone, EnumMsgType.REGISTER.id);
+        if (StringUtils.isEmpty(sendCode) || !sendCode.equals(vCode)) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "验证码过期或无效");
+        }
+
+        UserAuth userAuth = register(phone, openid, password);
+        JSONObject jsonObject;
+        try {
+            String response = CipherUtils.decryptS5(encryptedData, "UTF-8", sessionKey, iv);
+            logger.debug("response:" + phone);
+            jsonObject = JSONObject.parseObject(response);
+        } catch (Exception e) {
+            throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "用户信息解密出错");
+        }
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUserId(userAuth.getId());
+        userInfo.setName(jsonObject.getString("nickName"));
+        userInfo.setHeadIcon(jsonObject.getString("avatarUrl"));
+        userInfo.setSex(jsonObject.getInteger("gender"));
+        userInfo.setProvince(jsonObject.getString("province"));
+        userInfo.setCity(jsonObject.getString("city"));
+        userInfoService.insertUserInfo(userInfo);
+        openidToSessionKey.remove(openid);
+        return userAuth.getSession();
     }
 
     @Override
@@ -276,7 +315,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         return 0;
     }
 
-    private String register(String phone, String wxOpenId, String password) {
+    private UserAuth register(String phone, String wxOpenId, String password) {
         if (checkExist(phone)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "该用户已注册");
         }
@@ -290,8 +329,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         }
         userAuth.setSession(session);
         userAuthMapper.insert(userAuth);
-        userInfoService.initUserInfo(userAuth.getId(), phone);
-        return session;
+        return userAuth;
     }
 
     private boolean checkExist(String phone) {

@@ -13,6 +13,7 @@ public class UserInfo {
     private String personalSign;
     private Integer sex;
     private String birthday;
-    private String address;
+    private String province;
+    private String city;
     private String reviseTime;
 }

@@ -193,7 +193,7 @@ public class UserAuthController extends BaseController {
     }
 
     /**
-     * 微信授权登录
+     * 微信授权手机号登录
      *
      * @param wxPhoneLogin
      * @return
@@ -207,6 +207,36 @@ public class UserAuthController extends BaseController {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
         }
         return new ReturnObject(ReturnCode.SUCCESS, userAuthService.wxPhoneLogin(openid, encryptedData, iv));
+    }
+
+    /**
+     * 微信授权用户信息登录
+     *
+     * @param wxInfoLogin
+     * @return
+     */
+    @RequestMapping(value = "/wx_info_login", method = RequestMethod.POST)
+    public ReturnObject wxInfoLogin(@RequestBody Map<String, String> wxInfoLogin) {
+        String encryptedData = wxInfoLogin.get("encrypted_data");
+        String iv = wxInfoLogin.get("iv");
+        String openid = wxInfoLogin.get("openid");
+        String phone = wxInfoLogin.get("phone");
+        String vcode = wxInfoLogin.get("vcode");
+        String password = wxInfoLogin.get("password");
+        if (StringUtils.isEmpty(encryptedData) || StringUtils.isEmpty(iv) || StringUtils.isEmpty(openid)
+                || StringUtils.isEmpty(phone) || StringUtils.isEmpty(vcode) || StringUtils.isEmpty(password)) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
+        }
+        if (!phone.matches("^1\\d{10}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "手机号错误");
+        }
+        if (!vcode.matches("^\\d{6}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "验证码为6位");
+        }
+        if (!password.matches("^[A-Za-z0-9\\u4E00-\\u9FA5-]{5,20}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "密码只能由英文，数字，5-20位组成");
+        }
+        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.wxInfoLogin(openid, encryptedData, iv, phone, vcode, password));
     }
 
 }

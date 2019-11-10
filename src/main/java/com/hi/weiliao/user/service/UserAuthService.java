@@ -27,5 +27,7 @@ public interface UserAuthService {
 
     String wxPhoneLogin(String openid, String encryptedData, String iv);
 
+    String wxInfoLogin(String openid, String encryptedData, String iv, String phone, String vCode, String password);
+
     Integer getUserIdBySession(String session);
 }

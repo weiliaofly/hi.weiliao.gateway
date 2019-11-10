@@ -4,8 +4,8 @@
 <mapper namespace="com.hi.weiliao.user.mapper.UserInfoMapper">
 
     <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserInfo">
-        insert into USER_INFO (USER_ID, NAME)
-        values (#{userId}, #{name})
+        insert into USER_INFO (USER_ID, NAME, HEAD_ICON, BACKGROUND, PERSONAL_SIGN, SEX, BIRTHDAY, PROVINCE, CITY)
+        values (#{userId}, #{name}, #{headIcon}, #{background}, #{personalSign}, #{sex}, #{birthday}, #{province}, #{city})
     </insert>
 
     <update id="update" parameterType="com.hi.weiliao.user.bean.UserInfo">
@@ -29,8 +29,11 @@
         <if test="birthday != null">
             BIRTHDAY = #{birthday},
         </if>
-        <if test="address != null">
-            ADDRESS = #{address},
+        <if test="province != null">
+            PROVINCE = #{province},
+        </if>
+        <if test="city != null">
+            CITY = #{city},
         </if>
         revise_time = NOW()
         where USER_ID = #{userId}
@@ -45,7 +48,8 @@
             PERSONAL_SIGN,
             SEX,
             BIRTHDAY,
-            ADDRESS
+            PROVINCE,
+            CITY
         from USER_INFO
         where USER_ID = #{userId}
     </select>

@@ -5,6 +5,9 @@ import com.hi.weiliao.user.mapper.UserInfoMapper;
 import com.hi.weiliao.user.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.UUID;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -13,10 +16,19 @@ public class UserInfoServiceImpl implements UserInfoService {
     private UserInfoMapper userInfoMapper;
 
     @Override
-    public void initUserInfo(int userId, String phone) {
+    public void initUserInfo(int userId, String name) {
         UserInfo userInfo = new UserInfo();
         userInfo.setUserId(userId);
-        userInfo.setName(phone);
+        if (StringUtils.isEmpty(name)) {
+            userInfo.setName(UUID.randomUUID().toString());
+        } else {
+            userInfo.setName(name);
+        }
+        userInfoMapper.insert(userInfo);
+    }
+
+    @Override
+    public void insertUserInfo(UserInfo userInfo) {
         userInfoMapper.insert(userInfo);
     }
 
