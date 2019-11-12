@@ -14,6 +14,7 @@ import com.hi.weiliao.base.config.AliConfig;
 import com.hi.weiliao.base.config.WxConfig;
 import com.hi.weiliao.base.exception.UserException;
 import com.hi.weiliao.base.utils.*;
+import com.hi.weiliao.user.UserContext;
 import com.hi.weiliao.user.bean.UserAuth;
 import com.hi.weiliao.user.bean.UserInfo;
 import com.hi.weiliao.user.bean.UserVerifyCode;
@@ -54,7 +55,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     private AliConfig aliConfig;
 
     @Override
-    public void sendVCode(String phone, EnumMsgType msgType) {
+    public void sendVCode(Integer userId, String phone, EnumMsgType msgType) {
         UserAuth userAuth = userAuthMapper.getByPhone(phone);
         if (EnumMsgType.REGISTER == msgType) {
             if (userAuth != null) {
@@ -64,7 +65,15 @@ public class UserAuthServiceImpl implements UserAuthService {
             if (userAuth == null) {
                 throw new UserException(ReturnCode.BAD_REQUEST, "该用户未注册");
             }
-        } else {
+        } else if (EnumMsgType.CHANGE_INFO == msgType) {
+            if (userId == UserContext.NO_LOGIN_ID) {
+                throw new UserException(ReturnCode.BAD_REQUEST, "请先登录");
+            }
+            UserAuth exist = getExistById(userId);
+            if (phone.equals(exist.getPhone())) {
+                throw new UserException(ReturnCode.BAD_REQUEST, "修改后手机号和当前一致");
+            }
+        } else  {
             if (userAuth == null) {
                 throw new UserException(ReturnCode.BAD_REQUEST, "该用户未注册");
             }
@@ -115,11 +124,25 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
-    public void setPassword(Integer userId, String password) {
-        UserAuth exist = userAuthMapper.getById(userId);
-        if (exist == null) {
-            throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
+    public void setPhone(Integer userId, String phone, String vCode) {
+        UserAuth exist = getExistById(userId);
+        if (phone.equals(exist.getPhone())) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "修改后手机号和当前一致");
         }
+
+        String sendCode = codeMapper.queryVaildCodeByPhone(phone, EnumMsgType.CHANGE_INFO.id);
+        if (StringUtils.isEmpty(sendCode) || !sendCode.equals(vCode)) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "验证码过期或无效");
+        }
+        UserAuth update = new UserAuth();
+        update.setId(userId);
+        update.setPhone(phone);
+        userAuthMapper.update(update);
+    }
+
+    @Override
+    public void setPassword(Integer userId, String password) {
+        UserAuth exist = getExistById(userId);
         if (!StringUtils.isEmpty(exist.getPassword())) {
             throw new UserException(ReturnCode.BAD_REQUEST, "需要先短信验证才能重置密码");
         }
@@ -131,10 +154,7 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Override
     public void changePassword(Integer userId, String oldPassword, String newPassword) {
-        UserAuth exist = userAuthMapper.getById(userId);
-        if (exist == null) {
-            throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
-        }
+        UserAuth exist = getExistById(userId);
         oldPassword = Md5Utils.encrypt(oldPassword);
         newPassword = Md5Utils.encrypt(newPassword);
         if (!oldPassword.equals(exist.getPassword())) {
@@ -273,27 +293,21 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
-    public String wxInfoLogin(String openid, String encryptedData, String iv, String phone, String vCode, String password) {
+    public String wxInfoLogin(String openid, String encryptedData, String iv) {
         String sessionKey = openidToSessionKey.get(openid);
         if (StringUtils.isEmpty(sessionKey)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "需要先调用微信快捷登录");
         }
 
-
-        String sendCode = codeMapper.queryVaildCodeByPhone(phone, EnumMsgType.REGISTER.id);
-        if (StringUtils.isEmpty(sendCode) || !sendCode.equals(vCode)) {
-            throw new UserException(ReturnCode.BAD_REQUEST, "验证码过期或无效");
-        }
-
-        UserAuth userAuth = register(phone, openid, password);
         JSONObject jsonObject;
         try {
             String response = CipherUtils.decryptS5(encryptedData, "UTF-8", sessionKey, iv);
-            logger.debug("response:" + phone);
+            logger.debug("response:" + response);
             jsonObject = JSONObject.parseObject(response);
         } catch (Exception e) {
             throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "用户信息解密出错");
         }
+        UserAuth userAuth = register(null, openid, null);
         UserInfo userInfo = new UserInfo();
         userInfo.setUserId(userAuth.getId());
         userInfo.setName(jsonObject.getString("nickName"));
@@ -315,8 +329,16 @@ public class UserAuthServiceImpl implements UserAuthService {
         return 0;
     }
 
+    private UserAuth getExistById (int userId) {
+        UserAuth exist = userAuthMapper.getById(userId);
+        if (exist == null) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
+        }
+        return exist;
+    }
+
     private UserAuth register(String phone, String wxOpenId, String password) {
-        if (checkExist(phone)) {
+        if (!StringUtils.isEmpty(phone) && checkExist(phone)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "该用户已注册");
         }
         String session = "";

@@ -10,7 +10,7 @@ public class UserContext extends BaseContext {
 
     private static final String USER_ID = "USER_ID";
 
-    private static final int NO_LOGIN_ID = 0;
+    public static final int NO_LOGIN_ID = 0;
 
     public void setUserId(Integer userId) {
         set(USER_ID, userId);
@@ -27,8 +27,12 @@ public class UserContext extends BaseContext {
     public Integer getUserId() {
         Integer userId = (Integer) get(USER_ID);
         if (null == userId) {
-            return 0;
+            return NO_LOGIN_ID;
         }
         return userId;
+    }
+
+    public boolean hasLogin(){
+        return getUserId() == NO_LOGIN_ID ? false : true;
     }
 }

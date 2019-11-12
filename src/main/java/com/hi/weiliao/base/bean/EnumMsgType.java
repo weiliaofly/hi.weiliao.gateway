@@ -9,7 +9,10 @@ public enum EnumMsgType {
     LOGIN("登录", "SMS_173762205", 2),
 
     // 3-重置密码
-    RESET_PASSWORD("重置密码", "SMS_173767011", 3);
+    RESET_PASSWORD("重置密码", "SMS_173767011", 3),
+
+    // 4-修改信息
+    CHANGE_INFO("修改信息", "SMS_177242694", 4);
 
     public String name;
     public String code;

@@ -35,6 +35,7 @@ public class WebAppConfigurer implements WebMvcConfigurer {
         // 可添加多个
         registry.addInterceptor(getSessionInterceptor())
                 .addPathPatterns("/userinfo/**")
+                .addPathPatterns("/userauth/set_phone")
                 .addPathPatterns("/userauth/set_password")
                 .addPathPatterns("/userauth/change_password")
                 .addPathPatterns("/userfollow/follow")

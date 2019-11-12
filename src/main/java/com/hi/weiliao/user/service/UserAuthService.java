@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface UserAuthService {
 
-    void sendVCode(String phone, EnumMsgType msgType);
+    void sendVCode(Integer userId, String phone, EnumMsgType msgType);
 
     String registerByVCode(String phone, String vCode, String password);
 
@@ -19,6 +19,8 @@ public interface UserAuthService {
 
     void resetPassword(String phone, String vCode);
 
+    void setPhone(Integer userId, String phone, String vCode);
+
     String passwordlogin(String phone, String password);
 
     String vcodelogin(String phone, String vCode);
@@ -27,7 +29,7 @@ public interface UserAuthService {
 
     String wxPhoneLogin(String openid, String encryptedData, String iv);
 
-    String wxInfoLogin(String openid, String encryptedData, String iv, String phone, String vCode, String password);
+    String wxInfoLogin(String openid, String encryptedData, String iv);
 
     Integer getUserIdBySession(String session);
 }

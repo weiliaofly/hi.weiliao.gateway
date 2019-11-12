@@ -52,7 +52,7 @@ public class UserAuthController extends BaseController {
         if (null == msgType) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "验证码类型不支持");
         }
-        userAuthService.sendVCode(phone, msgType);
+        userAuthService.sendVCode(userContext.getUserId(), phone, msgType);
         return new ReturnObject(ReturnCode.SUCCESS);
     }
 
@@ -80,6 +80,29 @@ public class UserAuthController extends BaseController {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "密码只能由英文，数字，5-20位组成");
         }
         return new ReturnObject(ReturnCode.SUCCESS, userAuthService.registerByVCode(phone, vCode, password));
+    }
+
+    /**
+     * 修改和设置手机号
+     *
+     * @param setPhone
+     * @return
+     */
+    @RequestMapping(value = "/set_phone", method = RequestMethod.POST)
+    public ReturnObject setPhone(@RequestBody Map<String, String> setPhone) {
+        String phone = setPhone.get("phone");
+        String vCode = setPhone.get("vcode");
+        if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(vCode)) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
+        }
+        if (!phone.matches("^1\\d{10}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "手机号错误");
+        }
+        if (!vCode.matches("^\\d{6}$")) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "验证码为6位");
+        }
+        userAuthService.setPhone(userContext.getUserIdAndCheck(), phone, vCode);
+        return new ReturnObject(ReturnCode.SUCCESS);
     }
 
     /**
@@ -220,23 +243,10 @@ public class UserAuthController extends BaseController {
         String encryptedData = wxInfoLogin.get("encrypted_data");
         String iv = wxInfoLogin.get("iv");
         String openid = wxInfoLogin.get("openid");
-        String phone = wxInfoLogin.get("phone");
-        String vcode = wxInfoLogin.get("vcode");
-        String password = wxInfoLogin.get("password");
-        if (StringUtils.isEmpty(encryptedData) || StringUtils.isEmpty(iv) || StringUtils.isEmpty(openid)
-                || StringUtils.isEmpty(phone) || StringUtils.isEmpty(vcode) || StringUtils.isEmpty(password)) {
+        if (StringUtils.isEmpty(encryptedData) || StringUtils.isEmpty(iv) || StringUtils.isEmpty(openid)) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
         }
-        if (!phone.matches("^1\\d{10}$")) {
-            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "手机号错误");
-        }
-        if (!vcode.matches("^\\d{6}$")) {
-            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "验证码为6位");
-        }
-        if (!password.matches("^[A-Za-z0-9\\u4E00-\\u9FA5-]{5,20}$")) {
-            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "密码只能由英文，数字，5-20位组成");
-        }
-        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.wxInfoLogin(openid, encryptedData, iv, phone, vcode, password));
+        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.wxInfoLogin(openid, encryptedData, iv));
     }
 
 }
