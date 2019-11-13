@@ -35,4 +35,10 @@ public class UserManegeServiceImpl implements UserManageService {
         userManageMapper.deleteInfoByPhone(userAuth.getId());
         return userManageMapper.deleteAuthByPhone(userAuth.getId());
     }
+
+    @Override
+    public int deleteByUserId(Integer userId) {
+        userManageMapper.deleteInfoByPhone(userId);
+        return userManageMapper.deleteAuthByPhone(userId);
+    }
 }

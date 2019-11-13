@@ -23,12 +23,12 @@ public class UserManageController extends BaseController {
         return new ReturnObject(ReturnCode.SUCCESS, userManageService.query(phone, page_no, page_size));
     }
 
-    @RequestMapping(value = "/{phone}", method = RequestMethod.DELETE)
-    public ReturnObject query(@PathVariable("phone") String phone) {
-        if (!phone.matches("^1\\d{10}$")) {
-            return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "手机号错误");
+    @RequestMapping(value = "/{userid}", method = RequestMethod.DELETE)
+    public ReturnObject query(@PathVariable("userid") Integer userid) {
+        int result = userManageService.deleteByUserId(userid);
+        if (result == 0) {
+            return new ReturnObject(ReturnCode.NO_CHANGE);
         }
-        userManageService.deleteByPhone(phone);
         return new ReturnObject(ReturnCode.SUCCESS);
     }
 }
