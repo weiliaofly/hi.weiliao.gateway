@@ -3,6 +3,18 @@
 
 <mapper namespace="com.hi.weiliao.user.mapper.UserInfoMapper">
 
+    <resultMap id="UserInfo" type="com.hi.weiliao.user.bean.UserInfo">
+        <id column="USER_ID" property="userId" jdbcType="INTEGER"/>
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="HEAD_ICON" property="headIcon" jdbcType="VARCHAR"/>
+        <result column="BACKGROUND" property="background" jdbcType="INTEGER"/>
+        <result column="PERSONAL_SIGN" property="personalSign" jdbcType="VARCHAR"/>
+        <result column="SEX" property="sex" jdbcType="VARCHAR"/>
+        <result column="BIRTHDAY" property="birthday" jdbcType="VARCHAR"/>
+        <result column="PROVINCE" property="province" jdbcType="VARCHAR"/>
+        <result column="CITY" property="city" jdbcType="VARCHAR"/>
+    </resultMap>
+
     <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserInfo">
         insert into USER_INFO (USER_ID, NAME, HEAD_ICON, BACKGROUND, PERSONAL_SIGN, SEX, BIRTHDAY, PROVINCE, CITY)
         values (#{userId}, #{name}, #{headIcon}, #{background}, #{personalSign}, #{sex}, #{birthday}, #{province}, #{city})
@@ -39,7 +51,7 @@
         where USER_ID = #{userId}
     </update>
 
-    <select id="queryById" resultType="com.hi.weiliao.user.bean.UserInfo">
+    <select id="queryById" resultMap="UserInfo">
         select
             USER_ID,
             NAME,
