@@ -14,9 +14,6 @@ public interface UserAuthMapper {
 
     int update(UserAuth userAuth);
 
-    int addCoin(@Param("userId") Integer userId,
-                @Param("addCoin") BigDecimal addCoin);
-
     UserAuth getByOpenid(@Param("wxOpenid") String wxOpenid);
 
     UserAuth getBySession(@Param("session") String session);

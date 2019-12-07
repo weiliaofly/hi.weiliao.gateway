@@ -13,11 +13,12 @@
         <result column="BIRTHDAY" property="birthday" jdbcType="VARCHAR"/>
         <result column="PROVINCE" property="province" jdbcType="VARCHAR"/>
         <result column="CITY" property="city" jdbcType="VARCHAR"/>
+        <result column="COIN" property="coin" jdbcType="DECIMAL"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserInfo">
-        insert into USER_INFO (USER_ID, NAME, HEAD_ICON, BACKGROUND, PERSONAL_SIGN, SEX, BIRTHDAY, PROVINCE, CITY)
-        values (#{userId}, #{name}, #{headIcon}, #{background}, #{personalSign}, #{sex}, #{birthday}, #{province}, #{city})
+        insert into USER_INFO (USER_ID, NAME, HEAD_ICON, BACKGROUND, PERSONAL_SIGN, SEX, BIRTHDAY, PROVINCE, CITY, COIN)
+        values (#{userId}, #{name}, #{headIcon}, #{background}, #{personalSign}, #{sex}, #{birthday}, #{province}, #{city}, #{coin})
     </insert>
 
     <update id="update" parameterType="com.hi.weiliao.user.bean.UserInfo">
@@ -52,13 +53,13 @@
     </update>
 
     <update id="addCoin" parameterType="map">
-        update USER_AUTH
+        update USER_INFO
         set
         <if test="addCoin != null">
             coin = coin + #{addCoin},
         </if>
         revise_time = NOW()
-        where id = #{userId}
+        where USER_ID = #{userId}
     </update>
 
     <select id="queryById" resultType="com.hi.weiliao.user.bean.UserInfo">
@@ -71,7 +72,8 @@
             SEX,
             BIRTHDAY,
             PROVINCE,
-            CITY
+            CITY,
+            COIN
         from USER_INFO
         where USER_ID = #{userId}
     </select>

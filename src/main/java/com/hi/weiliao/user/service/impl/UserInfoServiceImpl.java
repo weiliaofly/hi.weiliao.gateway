@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -24,6 +25,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         } else {
             userInfo.setName(name);
         }
+        userInfo.setCoin(BigDecimal.ZERO);
         userInfoMapper.insert(userInfo);
     }
 
@@ -40,5 +42,10 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public int updateUserInfo(UserInfo userInfo) {
         return userInfoMapper.update(userInfo);
+    }
+
+    @Override
+    public int addCoin(int userId, BigDecimal addCoin) {
+        return userInfoMapper.addCoin(userId, addCoin);
     }
 }

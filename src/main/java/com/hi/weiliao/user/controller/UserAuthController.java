@@ -4,7 +4,9 @@ import com.hi.weiliao.base.BaseController;
 import com.hi.weiliao.base.bean.EnumMsgType;
 import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.bean.ReturnObject;
+import com.hi.weiliao.base.exception.UserException;
 import com.hi.weiliao.user.UserContext;
+import com.hi.weiliao.user.bean.UserAuth;
 import com.hi.weiliao.user.service.UserAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +81,8 @@ public class UserAuthController extends BaseController {
         if (!password.matches("^[A-Za-z0-9\\u4E00-\\u9FA5-]{5,20}$")) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR, "密码只能由英文，数字，5-20位组成");
         }
-        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.registerByVCode(phone, vCode, password));
+        Integer inviteId = checkInviteId(register);
+        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.registerByVCode(phone, vCode, password, inviteId));
     }
 
     /**
@@ -229,7 +232,8 @@ public class UserAuthController extends BaseController {
         if (StringUtils.isEmpty(encryptedData) || StringUtils.isEmpty(iv) || StringUtils.isEmpty(openid)) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
         }
-        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.wxPhoneLogin(openid, encryptedData, iv));
+        Integer inviteId = checkInviteId(wxPhoneLogin);
+        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.wxPhoneLogin(openid, encryptedData, iv, inviteId));
     }
 
     /**
@@ -246,7 +250,8 @@ public class UserAuthController extends BaseController {
         if (StringUtils.isEmpty(encryptedData) || StringUtils.isEmpty(iv) || StringUtils.isEmpty(openid)) {
             return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
         }
-        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.wxInfoLogin(openid, encryptedData, iv));
+        Integer inviteId = checkInviteId(wxInfoLogin);
+        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.wxInfoLogin(openid, encryptedData, iv, inviteId));
     }
 
     /**
@@ -258,5 +263,20 @@ public class UserAuthController extends BaseController {
         Integer userId = userContext.getUserIdAndCheck();
         userAuthService.signIn(userId);
         return new ReturnObject(ReturnCode.SUCCESS);
+    }
+
+    private Integer checkInviteId(Map<String, String> param) {
+        String inviteIdStr = param.get("invite_id");
+        Integer inviteId = null;
+        if (inviteIdStr != null) {
+            if (inviteIdStr.matches("^\\d{6,11}$")) {
+                inviteId = Integer.valueOf(inviteIdStr);
+                userAuthService.getExistById(inviteId);
+                return inviteId;
+            } else {
+                throw new UserException(ReturnCode.PARAMETERS_ERROR, "邀请码错误");
+            }
+        }
+        return null;
     }
 }

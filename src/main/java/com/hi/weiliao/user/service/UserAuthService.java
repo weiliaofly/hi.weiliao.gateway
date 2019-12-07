@@ -11,7 +11,7 @@ public interface UserAuthService {
 
     void sendVCode(Integer userId, String phone, EnumMsgType msgType);
 
-    String registerByVCode(String phone, String vCode, String password);
+    String registerByVCode(String phone, String vCode, String password, Integer inviteId);
 
     void setPassword(Integer userId, String password);
 
@@ -27,11 +27,13 @@ public interface UserAuthService {
 
     UserAuth wxlogin(String jscode);
 
-    String wxPhoneLogin(String openid, String encryptedData, String iv);
+    String wxPhoneLogin(String openid, String encryptedData, String iv, Integer inviteId);
 
-    String wxInfoLogin(String openid, String encryptedData, String iv);
+    String wxInfoLogin(String openid, String encryptedData, String iv, Integer inviteId);
 
     Integer getUserIdBySession(String session);
+
+    UserAuth getExistById (int userId);
 
     void signIn(Integer userId);
 }

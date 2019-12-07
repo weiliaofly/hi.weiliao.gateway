@@ -122,7 +122,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
-    public String registerByVCode(String phone, String vCode, String password) {
+    public String registerByVCode(String phone, String vCode, String password, Integer inviteId) {
 
         String sendCode = codeMapper.queryVaildCodeByPhone(phone, EnumMsgType.REGISTER.id);
         if (StringUtils.isEmpty(sendCode) || !sendCode.equals(vCode)) {
@@ -130,6 +130,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         }
         UserAuth userAuth = register(phone, "", password);
         userInfoService.initUserInfo(userAuth.getId(), null);
+        addCoinByInvite(inviteId);
         return userAuth.getSession();
     }
 
@@ -280,7 +281,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
-    public String wxPhoneLogin(String openid, String encryptedData, String iv) {
+    public String wxPhoneLogin(String openid, String encryptedData, String iv, Integer inviteId) {
         String sessionKey = openidToSessionKey.get(openid);
         if (StringUtils.isEmpty(sessionKey)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "需要先调用微信快捷登录");
@@ -299,11 +300,12 @@ public class UserAuthServiceImpl implements UserAuthService {
         UserAuth userAuth = register(phone, openid, "");
         userInfoService.initUserInfo(userAuth.getId(), null);
         openidToSessionKey.remove(openid);
+        addCoinByInvite(inviteId);
         return userAuth.getSession();
     }
 
     @Override
-    public String wxInfoLogin(String openid, String encryptedData, String iv) {
+    public String wxInfoLogin(String openid, String encryptedData, String iv, Integer inviteId) {
         String sessionKey = openidToSessionKey.get(openid);
         if (StringUtils.isEmpty(sessionKey)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "需要先调用微信快捷登录");
@@ -325,8 +327,10 @@ public class UserAuthServiceImpl implements UserAuthService {
         userInfo.setSex(jsonObject.getInteger("gender"));
         userInfo.setProvince(jsonObject.getString("province"));
         userInfo.setCity(jsonObject.getString("city"));
+        userInfo.setCoin(BigDecimal.ZERO);
         userInfoService.insertUserInfo(userInfo);
         openidToSessionKey.remove(openid);
+        addCoinByInvite(inviteId);
         return userAuth.getSession();
     }
 
@@ -339,7 +343,8 @@ public class UserAuthServiceImpl implements UserAuthService {
         return 0;
     }
 
-    private UserAuth getExistById (int userId) {
+    @Override
+    public UserAuth getExistById (int userId) {
         UserAuth exist = userAuthMapper.getById(userId);
         if (exist == null) {
             throw new UserException(ReturnCode.BAD_REQUEST, "用户不存在");
@@ -360,7 +365,6 @@ public class UserAuthServiceImpl implements UserAuthService {
             userAuth.setPassword(Md5Utils.encrypt(password));
         }
         userAuth.setSession(session);
-        userAuth.setCoin(BigDecimal.ZERO);
         userAuthMapper.insert(userAuth);
         return userAuth;
     }
@@ -396,6 +400,14 @@ public class UserAuthServiceImpl implements UserAuthService {
         }
         String signInCoin = globalConfigService.getConfigValue(CoinConfigEnum.SIGN_IN.configKey);
         BigDecimal addCoin = new BigDecimal(signInCoin);
-        userAuthMapper.addCoin(userId, addCoin);
+        userInfoService.addCoin(userId, addCoin);
+    }
+
+    private void addCoinByInvite(Integer userId){
+        if (userId != null) {
+            String signInCoin = globalConfigService.getConfigValue(CoinConfigEnum.INVITE.configKey);
+            BigDecimal addCoin = new BigDecimal(signInCoin);
+            userInfoService.addCoin(userId, addCoin);
+        }
     }
 }
