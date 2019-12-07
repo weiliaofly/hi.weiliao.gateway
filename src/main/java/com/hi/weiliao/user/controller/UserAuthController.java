@@ -249,4 +249,14 @@ public class UserAuthController extends BaseController {
         return new ReturnObject(ReturnCode.SUCCESS, userAuthService.wxInfoLogin(openid, encryptedData, iv));
     }
 
+    /**
+     * 签到领金币
+     * @return
+     */
+    @RequestMapping(value = "/sign_in", method = RequestMethod.POST)
+    public ReturnObject signIn() {
+        Integer userId = userContext.getUserIdAndCheck();
+        userAuthService.signIn(userId);
+        return new ReturnObject(ReturnCode.SUCCESS);
+    }
 }

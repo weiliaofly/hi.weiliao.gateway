@@ -38,6 +38,7 @@ public class WebAppConfigurer implements WebMvcConfigurer {
                 .addPathPatterns("/userauth/set_phone")
                 .addPathPatterns("/userauth/set_password")
                 .addPathPatterns("/userauth/change_password")
+                .addPathPatterns("/userauth/sign_in")
                 .addPathPatterns("/userfollow/follow")
                 .addPathPatterns("/userfollow/cancel_follow")
                 .addPathPatterns("/userfollow/count");

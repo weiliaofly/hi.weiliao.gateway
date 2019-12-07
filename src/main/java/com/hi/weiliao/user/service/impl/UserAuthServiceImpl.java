@@ -13,13 +13,16 @@ import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.config.AliConfig;
 import com.hi.weiliao.base.config.WxConfig;
 import com.hi.weiliao.base.exception.UserException;
+import com.hi.weiliao.base.service.GlobalConfigService;
 import com.hi.weiliao.base.utils.*;
+import com.hi.weiliao.user.bean.CoinConfigEnum;
 import com.hi.weiliao.user.UserContext;
 import com.hi.weiliao.user.bean.UserAuth;
 import com.hi.weiliao.user.bean.UserInfo;
 import com.hi.weiliao.user.bean.UserVerifyCode;
 import com.hi.weiliao.user.mapper.UserAuthMapper;
 import com.hi.weiliao.user.mapper.UserVerifyCodeMapper;
+import com.hi.weiliao.user.service.SignHistoryService;
 import com.hi.weiliao.user.service.UserAuthService;
 import com.hi.weiliao.user.service.UserInfoService;
 import org.slf4j.Logger;
@@ -28,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +45,12 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Autowired
     private UserInfoService userInfoService;
+
+    @Autowired
+    private SignHistoryService signHistoryService;
+
+    @Autowired
+    private GlobalConfigService globalConfigService;
 
     @Autowired
     private UserAuthMapper userAuthMapper;
@@ -350,6 +360,7 @@ public class UserAuthServiceImpl implements UserAuthService {
             userAuth.setPassword(Md5Utils.encrypt(password));
         }
         userAuth.setSession(session);
+        userAuth.setCoin(BigDecimal.ZERO);
         userAuthMapper.insert(userAuth);
         return userAuth;
     }
@@ -375,5 +386,16 @@ public class UserAuthServiceImpl implements UserAuthService {
             break;
         }
         return session;
+    }
+
+    @Override
+    public void signIn(Integer userId) {
+        boolean success = signHistoryService.signIn(userId);
+        if (!success) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "今天已签过到");
+        }
+        String signInCoin = globalConfigService.getConfigValue(CoinConfigEnum.SIGN_IN.configKey);
+        BigDecimal addCoin = new BigDecimal(signInCoin);
+        userAuthMapper.addCoin(userId, addCoin);
     }
 }

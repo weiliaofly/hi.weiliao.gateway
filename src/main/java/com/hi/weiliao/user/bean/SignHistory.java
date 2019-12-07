@@ -8,13 +8,8 @@ import java.math.BigDecimal;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserAuth implements Serializable {
-    private Integer id;
-    private String phone;
-    private String password;
-    private Integer pwTryTimes;
-    private String wxOpenid;
-    private String session;
+public class SignHistory implements Serializable {
+    private Integer userId;
+    private Integer signType;
     private String createTime;
-    private String reviseTime;
 }

@@ -32,4 +32,6 @@ public interface UserAuthService {
     String wxInfoLogin(String openid, String encryptedData, String iv);
 
     Integer getUserIdBySession(String session);
+
+    void signIn(Integer userId);
 }

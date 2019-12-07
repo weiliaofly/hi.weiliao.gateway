@@ -20,7 +20,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         UserInfo userInfo = new UserInfo();
         userInfo.setUserId(userId);
         if (StringUtils.isEmpty(name)) {
-            userInfo.setName(UUID.randomUUID().toString());
+            userInfo.setName(UUID.randomUUID().toString().substring(0, 20));
         } else {
             userInfo.setName(name);
         }
