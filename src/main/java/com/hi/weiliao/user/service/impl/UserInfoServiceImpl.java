@@ -25,7 +25,6 @@ public class UserInfoServiceImpl implements UserInfoService {
         } else {
             userInfo.setName(name);
         }
-        userInfo.setCoin(BigDecimal.ZERO);
         userInfoMapper.insert(userInfo);
     }
 

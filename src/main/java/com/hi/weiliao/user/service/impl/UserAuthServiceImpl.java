@@ -327,7 +327,6 @@ public class UserAuthServiceImpl implements UserAuthService {
         userInfo.setSex(jsonObject.getInteger("gender"));
         userInfo.setProvince(jsonObject.getString("province"));
         userInfo.setCity(jsonObject.getString("city"));
-        userInfo.setCoin(BigDecimal.ZERO);
         userInfoService.insertUserInfo(userInfo);
         openidToSessionKey.remove(openid);
         addCoinByInvite(inviteId);

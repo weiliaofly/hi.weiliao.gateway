@@ -17,8 +17,8 @@
     </resultMap>
 
     <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserInfo">
-        insert into USER_INFO (USER_ID, NAME, HEAD_ICON, BACKGROUND, PERSONAL_SIGN, SEX, BIRTHDAY, PROVINCE, CITY, COIN)
-        values (#{userId}, #{name}, #{headIcon}, #{background}, #{personalSign}, #{sex}, #{birthday}, #{province}, #{city}, #{coin})
+        insert into USER_INFO (USER_ID, NAME, HEAD_ICON, BACKGROUND, PERSONAL_SIGN, SEX, BIRTHDAY, PROVINCE, CITY)
+        values (#{userId}, #{name}, #{headIcon}, #{background}, #{personalSign}, #{sex}, #{birthday}, #{province}, #{city})
     </insert>
 
     <update id="update" parameterType="com.hi.weiliao.user.bean.UserInfo">
