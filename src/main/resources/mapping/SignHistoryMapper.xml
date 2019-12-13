@@ -4,9 +4,9 @@
 <mapper namespace="com.hi.weiliao.user.mapper.SignHistoryMapper">
 
     <resultMap id="SignHistory" type="com.hi.weiliao.user.bean.SignHistory">
-        <result column="userId" property="userId" jdbcType="INTEGER"/>
-        <result column="signType" property="signType" jdbcType="INTEGER"/>
-        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+        <result column="USER_ID" property="userId" jdbcType="INTEGER"/>
+        <result column="SIGN_TYPE" property="signType" jdbcType="INTEGER"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="VARCHAR"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.hi.weiliao.user.bean.SignHistory">
@@ -27,6 +27,17 @@
         <if test="createTime != null">
             and date_format(CREATE_TIME, '%Y-%m-%d') = #{createTime}
         </if>
+    </select>
+
+    <select id="getSignHistory" resultMap="SignHistory" parameterType="map">
+        select
+            SIGN_TYPE,
+            CREATE_TIME
+        from SIGN_HISTORY
+        where
+            USER_ID = #{userId}
+            and date_format(CREATE_TIME, '%Y-%m-%d') &gt;= #{fromOn}
+            and date_format(CREATE_TIME, '%Y-%m-%d') &lt;= #{toOn}
     </select>
 
 </mapper>

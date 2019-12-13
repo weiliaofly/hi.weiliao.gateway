@@ -5,18 +5,19 @@ import com.hi.weiliao.base.bean.EnumMsgType;
 import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.bean.ReturnObject;
 import com.hi.weiliao.base.exception.UserException;
+import com.hi.weiliao.base.utils.TimeUtils;
 import com.hi.weiliao.user.UserContext;
+import com.hi.weiliao.user.bean.SignHistory;
 import com.hi.weiliao.user.bean.UserAuth;
 import com.hi.weiliao.user.service.UserAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Pattern;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -263,6 +264,22 @@ public class UserAuthController extends BaseController {
         Integer userId = userContext.getUserIdAndCheck();
         userAuthService.signIn(userId);
         return new ReturnObject(ReturnCode.SUCCESS);
+    }
+
+    /**
+     * 查询签到历史记录
+     * @return
+     */
+    @RequestMapping(value = "/sign_history", method = RequestMethod.GET)
+    public ReturnObject signHistory(@RequestParam(required = false) @Pattern(regexp = "^\\d{4}-[1,12]-[1,31]}$", message = "日期格式不正确") String from_on,
+                                    @RequestParam(required = false) @Pattern(regexp = "^\\d{4}-[1,12]-[1,31]}$", message = "日期格式不正确") String to_on) {
+        Integer userId = userContext.getUserIdAndCheck();
+        if (StringUtils.isEmpty(from_on) || StringUtils.isEmpty(to_on)) {
+            from_on = TimeUtils.getCurrentYYYYMMDD();
+            to_on = TimeUtils.getCurrentYYYYMMDD();
+        }
+        List<SignHistory> result = userAuthService.getSignHistory(userId, from_on, to_on);
+        return new ReturnObject(ReturnCode.SUCCESS, result);
     }
 
     private Integer checkInviteId(Map<String, String> param) {

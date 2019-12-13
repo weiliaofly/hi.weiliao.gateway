@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.hi.weiliao.user.mapper.InviteHistoryMapper">
+
+    <resultMap id="InviteHistory" type="com.hi.weiliao.user.bean.InviteHistory">
+        <result column="userId" property="userId" jdbcType="INTEGER"/>
+        <result column="inviteId" property="inviteId" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.hi.weiliao.user.bean.InviteHistory">
+        insert into `INVITE_HISTORY` (`USER_ID`, `INVITE_ID`, `CREATE_TIME`)
+        values (#{userId}, #{inviteId}, #{createTime})
+    </insert>
+
+    <select id="getById" resultMap="InviteHistory" parameterType="map">
+        select *
+        from INVITE_HISTORY
+        where 1=1
+        <if test="userId != null">
+            and USER_ID = #{userId}
+        </if>
+        <if test="inviteId != null">
+            and INVITE_ID = #{inviteId}
+        </if>
+    </select>
+
+</mapper>

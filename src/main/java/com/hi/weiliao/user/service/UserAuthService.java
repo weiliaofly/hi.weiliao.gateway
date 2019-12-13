@@ -1,6 +1,7 @@
 package com.hi.weiliao.user.service;
 
 import com.hi.weiliao.base.bean.EnumMsgType;
+import com.hi.weiliao.user.bean.SignHistory;
 import com.hi.weiliao.user.bean.UserAuth;
 import org.springframework.stereotype.Service;
 
@@ -36,4 +37,6 @@ public interface UserAuthService {
     UserAuth getExistById (int userId);
 
     void signIn(Integer userId);
+
+    List<SignHistory> getSignHistory(Integer userId, String fromOn, String toOn);
 }

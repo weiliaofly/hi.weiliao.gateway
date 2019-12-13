@@ -15,11 +15,8 @@ import com.hi.weiliao.base.config.WxConfig;
 import com.hi.weiliao.base.exception.UserException;
 import com.hi.weiliao.base.service.GlobalConfigService;
 import com.hi.weiliao.base.utils.*;
-import com.hi.weiliao.user.bean.CoinConfigEnum;
+import com.hi.weiliao.user.bean.*;
 import com.hi.weiliao.user.UserContext;
-import com.hi.weiliao.user.bean.UserAuth;
-import com.hi.weiliao.user.bean.UserInfo;
-import com.hi.weiliao.user.bean.UserVerifyCode;
 import com.hi.weiliao.user.mapper.UserAuthMapper;
 import com.hi.weiliao.user.mapper.UserVerifyCodeMapper;
 import com.hi.weiliao.user.service.SignHistoryService;
@@ -32,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -400,6 +398,11 @@ public class UserAuthServiceImpl implements UserAuthService {
         String signInCoin = globalConfigService.getConfigValue(CoinConfigEnum.SIGN_IN.configKey);
         BigDecimal addCoin = new BigDecimal(signInCoin);
         userInfoService.addCoin(userId, addCoin);
+    }
+
+    @Override
+    public List<SignHistory> getSignHistory(Integer userId, String fromOn, String toOn) {
+        return signHistoryService.getSignHistory(userId, fromOn, toOn);
     }
 
     private void addCoinByInvite(Integer userId){

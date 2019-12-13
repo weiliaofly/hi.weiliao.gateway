@@ -62,7 +62,7 @@
         where USER_ID = #{userId}
     </update>
 
-    <select id="queryById" resultType="com.hi.weiliao.user.bean.UserInfo">
+    <select id="queryById" resultMap="UserInfo">
         select
             USER_ID,
             NAME,
