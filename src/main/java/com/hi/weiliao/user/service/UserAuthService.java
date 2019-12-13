@@ -35,8 +35,4 @@ public interface UserAuthService {
     Integer getUserIdBySession(String session);
 
     UserAuth getExistById (int userId);
-
-    void signIn(Integer userId);
-
-    List<SignHistory> getSignHistory(Integer userId, String fromOn, String toOn);
 }

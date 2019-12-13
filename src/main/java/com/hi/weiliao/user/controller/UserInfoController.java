@@ -3,11 +3,18 @@ package com.hi.weiliao.user.controller;
 import com.hi.weiliao.base.BaseController;
 import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.bean.ReturnObject;
+import com.hi.weiliao.base.utils.TimeUtils;
 import com.hi.weiliao.user.UserContext;
+import com.hi.weiliao.user.bean.SignHistory;
 import com.hi.weiliao.user.bean.UserInfo;
 import com.hi.weiliao.user.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/userinfo")
@@ -62,5 +69,32 @@ public class UserInfoController extends BaseController {
             return new ReturnObject(ReturnCode.NO_CHANGE);
         }
         return new ReturnObject(ReturnCode.SUCCESS);
+    }
+
+    /**
+     * 签到领金币
+     * @return
+     */
+    @RequestMapping(value = "/sign_in", method = RequestMethod.POST)
+    public ReturnObject signIn() {
+        Integer userId = userContext.getUserIdAndCheck();
+        userInfoService.signIn(userId);
+        return new ReturnObject(ReturnCode.SUCCESS);
+    }
+
+    /**
+     * 查询签到历史记录
+     * @return
+     */
+    @RequestMapping(value = "/sign_history", method = RequestMethod.GET)
+    public ReturnObject signHistory(@Valid @Pattern(regexp = TimeUtils.REG_YYYY_MM_DD, message = "日期格式不正确") @RequestParam(required = false) String from_on,
+                                    @Valid @Pattern(regexp = TimeUtils.REG_YYYY_MM_DD, message = "日期格式不正确") @RequestParam(required = false) String to_on) {
+        Integer userId = userContext.getUserIdAndCheck();
+        if (StringUtils.isEmpty(from_on) || StringUtils.isEmpty(to_on)) {
+            from_on = TimeUtils.getCurrentYYYYMMDD();
+            to_on = TimeUtils.getCurrentYYYYMMDD();
+        }
+        List<SignHistory> result = userInfoService.getSignHistory(userId, from_on, to_on);
+        return new ReturnObject(ReturnCode.SUCCESS, result);
     }
 }

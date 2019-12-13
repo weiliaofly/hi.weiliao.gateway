@@ -45,9 +45,6 @@ public class UserAuthServiceImpl implements UserAuthService {
     private UserInfoService userInfoService;
 
     @Autowired
-    private SignHistoryService signHistoryService;
-
-    @Autowired
     private GlobalConfigService globalConfigService;
 
     @Autowired
@@ -387,22 +384,6 @@ public class UserAuthServiceImpl implements UserAuthService {
             break;
         }
         return session;
-    }
-
-    @Override
-    public void signIn(Integer userId) {
-        boolean success = signHistoryService.signIn(userId);
-        if (!success) {
-            throw new UserException(ReturnCode.BAD_REQUEST, "今天已签过到");
-        }
-        String signInCoin = globalConfigService.getConfigValue(CoinConfigEnum.SIGN_IN.configKey);
-        BigDecimal addCoin = new BigDecimal(signInCoin);
-        userInfoService.addCoin(userId, addCoin);
-    }
-
-    @Override
-    public List<SignHistory> getSignHistory(Integer userId, String fromOn, String toOn) {
-        return signHistoryService.getSignHistory(userId, fromOn, toOn);
     }
 
     private void addCoinByInvite(Integer userId){

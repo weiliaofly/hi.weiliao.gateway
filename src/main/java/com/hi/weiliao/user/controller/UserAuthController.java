@@ -258,33 +258,6 @@ public class UserAuthController extends BaseController {
         return new ReturnObject(ReturnCode.SUCCESS, userAuthService.wxInfoLogin(openid, encryptedData, iv, inviteId));
     }
 
-    /**
-     * 签到领金币
-     * @return
-     */
-    @RequestMapping(value = "/sign_in", method = RequestMethod.POST)
-    public ReturnObject signIn() {
-        Integer userId = userContext.getUserIdAndCheck();
-        userAuthService.signIn(userId);
-        return new ReturnObject(ReturnCode.SUCCESS);
-    }
-
-    /**
-     * 查询签到历史记录
-     * @return
-     */
-    @RequestMapping(value = "/sign_history", method = RequestMethod.GET)
-    public ReturnObject signHistory(@Valid @Pattern(regexp = TimeUtils.REG_YYYY_MM_DD, message = "日期格式不正确") @RequestParam(required = false) String from_on,
-                                    @Valid @Pattern(regexp = TimeUtils.REG_YYYY_MM_DD, message = "日期格式不正确") @RequestParam(required = false) String to_on) {
-        Integer userId = userContext.getUserIdAndCheck();
-        if (StringUtils.isEmpty(from_on) || StringUtils.isEmpty(to_on)) {
-            from_on = TimeUtils.getCurrentYYYYMMDD();
-            to_on = TimeUtils.getCurrentYYYYMMDD();
-        }
-        List<SignHistory> result = userAuthService.getSignHistory(userId, from_on, to_on);
-        return new ReturnObject(ReturnCode.SUCCESS, result);
-    }
-
     private Integer checkInviteId(Map<String, String> param) {
         String inviteIdStr = param.get("invite_id");
         Integer inviteId = null;
