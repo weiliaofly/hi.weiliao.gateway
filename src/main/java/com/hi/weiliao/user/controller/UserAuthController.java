@@ -14,12 +14,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.Map;
 
+@Validated
 @RestController
 @RequestMapping(value = "/userauth")
 public class UserAuthController extends BaseController {
@@ -271,8 +274,8 @@ public class UserAuthController extends BaseController {
      * @return
      */
     @RequestMapping(value = "/sign_history", method = RequestMethod.GET)
-    public ReturnObject signHistory(@RequestParam(required = false) @Pattern(regexp = "^\\d{4}-[1,12]-[1,31]}$", message = "日期格式不正确") String from_on,
-                                    @RequestParam(required = false) @Pattern(regexp = "^\\d{4}-[1,12]-[1,31]}$", message = "日期格式不正确") String to_on) {
+    public ReturnObject signHistory(@Valid @Pattern(regexp = TimeUtils.REG_YYYY_MM_DD, message = "日期格式不正确") @RequestParam(required = false) String from_on,
+                                    @Valid @Pattern(regexp = TimeUtils.REG_YYYY_MM_DD, message = "日期格式不正确") @RequestParam(required = false) String to_on) {
         Integer userId = userContext.getUserIdAndCheck();
         if (StringUtils.isEmpty(from_on) || StringUtils.isEmpty(to_on)) {
             from_on = TimeUtils.getCurrentYYYYMMDD();

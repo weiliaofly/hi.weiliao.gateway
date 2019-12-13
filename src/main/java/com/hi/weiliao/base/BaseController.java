@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 public class BaseController {
@@ -65,7 +66,15 @@ public class BaseController {
     public ReturnObject handleExceptions(HttpServletRequest request, Exception ex) {
         StringBuilder msg = new StringBuilder();
         getRequestMessage(request, msg);
-        return new ReturnObject(ReturnCode.INTERNAL_SERVER_ERROR.getCode(), "服务器错误 ");
+        logger.error(msg.toString());
+        return new ReturnObject(ReturnCode.INTERNAL_SERVER_ERROR.getCode(), "服务器错误:" + ex.getMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ReturnObject handleConstraintViolationException(HttpServletRequest request, ConstraintViolationException ex) {
+        return new ReturnObject(ReturnCode.INTERNAL_SERVER_ERROR.getCode(), ex.getMessage());
     }
 
     private void getRequestMessage(HttpServletRequest request, StringBuilder msg) {

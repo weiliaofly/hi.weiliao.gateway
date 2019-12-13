@@ -18,7 +18,7 @@ public class SignHistoryServiceImpl implements SignHistoryService {
 
     @Override
     public boolean signIn(Integer userId) {
-        String currentDate = TimeUtils.getCurrentYYYYMMDD();
+        String currentDate = TimeUtils.getCurrentYYYYMMDDHHMMSS();
         SignHistory signHistory = signHistoryMapper.getById(userId, SignTypeEnum.SIGN_IN.id, currentDate);
         if (signHistory != null) {
             return false;
