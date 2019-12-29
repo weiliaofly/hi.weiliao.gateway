@@ -5,16 +5,22 @@ import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.bean.ReturnObject;
 import com.hi.weiliao.base.utils.TimeUtils;
 import com.hi.weiliao.user.UserContext;
+import com.hi.weiliao.user.bean.InviteHistory;
 import com.hi.weiliao.user.bean.SignHistory;
 import com.hi.weiliao.user.bean.UserInfo;
+import com.hi.weiliao.user.service.InviteHistoryService;
 import com.hi.weiliao.user.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/userinfo")
@@ -22,6 +28,9 @@ public class UserInfoController extends BaseController {
 
     @Autowired
     private UserInfoService userInfoService;
+
+    @Autowired
+    private InviteHistoryService inviteHistoryService;
 
     @Autowired
     private UserContext userContext;
@@ -95,6 +104,25 @@ public class UserInfoController extends BaseController {
             to_on = TimeUtils.getCurrentYYYYMMDD();
         }
         List<SignHistory> result = userInfoService.getSignHistory(userId, from_on, to_on);
+        return new ReturnObject(ReturnCode.SUCCESS, result);
+    }
+
+    /**
+     * 查询邀请记录
+     * @return
+     */
+    @RequestMapping(value = "/invite_history", method = RequestMethod.GET)
+    public ReturnObject inviteHistory() {
+        Integer userId = userContext.getUserIdAndCheck();
+        List<InviteHistory> inviteHistories = inviteHistoryService.getInviteHistory(userId, null);
+        Map<String, Object> result = new HashMap();
+        BigDecimal inviteCoin = BigDecimal.ZERO;
+        for (InviteHistory history : inviteHistories) {
+            inviteCoin = inviteCoin.add(history.getAddCoin());
+        }
+        int inviteNum = CollectionUtils.isEmpty(inviteHistories) ? 0 : inviteHistories.size();
+        result.put("invite_num", inviteNum);
+        result.put("invite_coin", inviteCoin);
         return new ReturnObject(ReturnCode.SUCCESS, result);
     }
 }
