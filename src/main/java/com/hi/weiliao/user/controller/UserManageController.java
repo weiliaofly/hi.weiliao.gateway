@@ -37,8 +37,8 @@ public class UserManageController extends BaseController {
     }
 
     @RequestMapping(value = "/invite_history", method = RequestMethod.GET)
-    public ReturnObject getInviteHistory(@RequestParam("userid") Integer userid,
-                                         @RequestParam("inviteid") Integer inviteid) {
+    public ReturnObject getInviteHistory(@RequestParam(value = "userid", required = false) Integer userid,
+                                         @RequestParam(value = "inviteid", required = false) Integer inviteid) {
 
         return new ReturnObject(ReturnCode.SUCCESS, inviteHistoryService.getInviteHistory(userid, inviteid));
     }
