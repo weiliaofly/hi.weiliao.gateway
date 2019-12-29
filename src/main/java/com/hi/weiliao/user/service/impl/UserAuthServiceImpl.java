@@ -19,6 +19,7 @@ import com.hi.weiliao.user.bean.*;
 import com.hi.weiliao.user.UserContext;
 import com.hi.weiliao.user.mapper.UserAuthMapper;
 import com.hi.weiliao.user.mapper.UserVerifyCodeMapper;
+import com.hi.weiliao.user.service.InviteHistoryService;
 import com.hi.weiliao.user.service.SignHistoryService;
 import com.hi.weiliao.user.service.UserAuthService;
 import com.hi.weiliao.user.service.UserInfoService;
@@ -43,6 +44,9 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Autowired
     private UserInfoService userInfoService;
+
+    @Autowired
+    private InviteHistoryService inviteHistoryService;
 
     @Autowired
     private GlobalConfigService globalConfigService;
@@ -126,6 +130,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         UserAuth userAuth = register(phone, "", password);
         userInfoService.initUserInfo(userAuth.getId(), null);
         addCoinByInvite(inviteId);
+        inviteHistoryService.invite(userAuth.getId(), inviteId);
         return userAuth.getSession();
     }
 
@@ -296,6 +301,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         userInfoService.initUserInfo(userAuth.getId(), null);
         openidToSessionKey.remove(openid);
         addCoinByInvite(inviteId);
+        inviteHistoryService.invite(userAuth.getId(), inviteId);
         return userAuth.getSession();
     }
 
@@ -325,6 +331,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         userInfoService.insertUserInfo(userInfo);
         openidToSessionKey.remove(openid);
         addCoinByInvite(inviteId);
+        inviteHistoryService.invite(userAuth.getId(), inviteId);
         return userAuth.getSession();
     }
 

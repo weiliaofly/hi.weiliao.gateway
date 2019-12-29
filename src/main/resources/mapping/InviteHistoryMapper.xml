@@ -4,18 +4,23 @@
 <mapper namespace="com.hi.weiliao.user.mapper.InviteHistoryMapper">
 
     <resultMap id="InviteHistory" type="com.hi.weiliao.user.bean.InviteHistory">
-        <result column="userId" property="userId" jdbcType="INTEGER"/>
-        <result column="inviteId" property="inviteId" jdbcType="INTEGER"/>
-        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+        <result column="USER_ID" property="userId" jdbcType="INTEGER"/>
+        <result column="INVITE_ID" property="inviteId" jdbcType="INTEGER"/>
+        <result column="ADD_COIN" property="addCoin" jdbcType="DECIMAL"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="VARCHAR"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.hi.weiliao.user.bean.InviteHistory">
-        insert into `INVITE_HISTORY` (`USER_ID`, `INVITE_ID`, `CREATE_TIME`)
-        values (#{userId}, #{inviteId}, #{createTime})
+        insert into `INVITE_HISTORY` (`USER_ID`, `INVITE_ID`, `CREATE_TIME`, `ADD_COIN`)
+        values (#{userId}, #{inviteId}, #{createTime}, #{addCoin})
     </insert>
 
     <select id="getById" resultMap="InviteHistory" parameterType="map">
-        select *
+        select
+            USER_ID,
+            INVITE_ID,
+            ADD_COIN,
+            CREATE_TIME
         from INVITE_HISTORY
         where 1=1
         <if test="userId != null">

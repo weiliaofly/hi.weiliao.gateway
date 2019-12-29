@@ -3,6 +3,7 @@ package com.hi.weiliao.user.controller;
 import com.hi.weiliao.base.BaseController;
 import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.bean.ReturnObject;
+import com.hi.weiliao.user.service.InviteHistoryService;
 import com.hi.weiliao.user.service.UserManageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,9 @@ public class UserManageController extends BaseController {
     @Autowired
     private UserManageService userManageService;
 
+    @Autowired
+    private InviteHistoryService inviteHistoryService;
+
     @RequestMapping(value = "/query", method = RequestMethod.GET)
     public ReturnObject queryList(@RequestParam(required = false) String phone,
                                   @RequestParam @Size(min = 1, max = 1000, message = "page_no只能为1-1000") Integer page_no,
@@ -24,11 +28,18 @@ public class UserManageController extends BaseController {
     }
 
     @RequestMapping(value = "/{userid}", method = RequestMethod.DELETE)
-    public ReturnObject query(@PathVariable("userid") Integer userid) {
+    public ReturnObject delete(@PathVariable("userid") Integer userid) {
         int result = userManageService.deleteByUserId(userid);
         if (result == 0) {
             return new ReturnObject(ReturnCode.NO_CHANGE);
         }
         return new ReturnObject(ReturnCode.SUCCESS);
+    }
+
+    @RequestMapping(value = "/invite_history", method = RequestMethod.GET)
+    public ReturnObject getInviteHistory(@RequestParam("userid") Integer userid,
+                                         @RequestParam("inviteid") Integer inviteid) {
+
+        return new ReturnObject(ReturnCode.SUCCESS, inviteHistoryService.getInviteHistory(userid, inviteid));
     }
 }
