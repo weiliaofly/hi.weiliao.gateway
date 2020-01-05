@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface UserManageMapper {
 
-    List<UserAuth> query(@Param("phone")String phone);
+    List query(@Param("phone")String phone);
 
     int deleteAuthByPhone(@Param("userId")int userId);
 

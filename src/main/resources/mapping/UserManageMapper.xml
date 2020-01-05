@@ -3,23 +3,24 @@
 
 <mapper namespace="com.hi.weiliao.user.mapper.UserManageMapper">
 
-    <resultMap id="UserAuth" type="com.hi.weiliao.user.bean.UserAuth">
-        <id column="id" property="id" jdbcType="INTEGER"/>
-        <result column="phone" property="phone" jdbcType="VARCHAR"/>
-        <result column="password" property="password" jdbcType="VARCHAR"/>
-        <result column="pw_try_times" property="pwTryTimes" jdbcType="INTEGER"/>
-        <result column="wx_openid" property="wxOpenid" jdbcType="VARCHAR"/>
-        <result column="session" property="session" jdbcType="VARCHAR"/>
-        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
-        <result column="revise_time" property="reviseTime" jdbcType="VARCHAR"/>
-    </resultMap>
-
-    <select id="query" resultMap="UserAuth">
-        select *
-        from USER_AUTH
+    <select id="query" resultType="map">
+        select
+            UA.*,
+            UI.NAME,
+            UI.HEAD_ICON,
+            UI.BACKGROUND,
+            UI.PERSONAL_SIGN,
+            UI.SEX,
+            UI.BIRTHDAY,
+            UI.PROVINCE,
+            UI.CITY,
+            UI.COIN
+        from USER_AUTH UA
+        left join USER_INFO UI
+        ON UA.ID = UI.USER_ID
         where 1 = 1
         <if test="phone != null and phone != ''">
-            phone = #{phone}
+            UA.phone = #{phone}
         </if>
     </select>
 
