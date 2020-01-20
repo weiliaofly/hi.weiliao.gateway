@@ -1,22 +1,18 @@
 package com.hi.weiliao.user.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.aliyuncs.CommonRequest;
-import com.aliyuncs.CommonResponse;
-import com.aliyuncs.DefaultAcsClient;
-import com.aliyuncs.IAcsClient;
-import com.aliyuncs.exceptions.ClientException;
-import com.aliyuncs.http.MethodType;
-import com.aliyuncs.profile.DefaultProfile;
 import com.hi.weiliao.base.bean.EnumMsgType;
 import com.hi.weiliao.base.bean.ReturnCode;
-import com.hi.weiliao.base.config.AliConfig;
-import com.hi.weiliao.base.config.WxConfig;
 import com.hi.weiliao.base.exception.UserException;
 import com.hi.weiliao.base.service.GlobalConfigService;
 import com.hi.weiliao.base.utils.*;
-import com.hi.weiliao.user.bean.*;
+import com.hi.weiliao.thirdpart.service.AlipayService;
+import com.hi.weiliao.thirdpart.service.WechatService;
 import com.hi.weiliao.user.UserContext;
+import com.hi.weiliao.user.bean.CoinConfigEnum;
+import com.hi.weiliao.user.bean.UserAuth;
+import com.hi.weiliao.user.bean.UserInfo;
+import com.hi.weiliao.user.bean.UserVerifyCode;
 import com.hi.weiliao.user.mapper.UserAuthMapper;
 import com.hi.weiliao.user.mapper.UserVerifyCodeMapper;
 import com.hi.weiliao.user.service.InviteHistoryService;
@@ -30,9 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -52,16 +45,16 @@ public class UserAuthServiceImpl implements UserAuthService {
     private GlobalConfigService globalConfigService;
 
     @Autowired
+    private AlipayService alipayService;
+
+    @Autowired
+    private WechatService wechatService;
+
+    @Autowired
     private UserAuthMapper userAuthMapper;
 
     @Autowired
     private UserVerifyCodeMapper codeMapper;
-
-    @Autowired
-    private WxConfig wxConfig;
-
-    @Autowired
-    private AliConfig aliConfig;
 
     @Override
     public void sendVCode(Integer userId, String phone, EnumMsgType msgType) {
@@ -91,33 +84,13 @@ public class UserAuthServiceImpl implements UserAuthService {
         if (!StringUtils.isEmpty(oldCode)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "验证码未过期，请稍后重试");
         }
-        DefaultProfile profile = DefaultProfile.getProfile("cn-shenzhen", aliConfig.getAccessKeyId(), aliConfig.getAccessKeySecret());
-        IAcsClient client = new DefaultAcsClient(profile);
         String verifyCode = CommonUtils.getSixVerifyCode();
-        CommonRequest request = new CommonRequest();
-        request.setMethod(MethodType.POST);
-        request.setDomain("dysmsapi.aliyuncs.com");
-        request.setVersion("2017-05-25");
-        request.setAction("SendSms");
-        request.putQueryParameter("RegionId", "cn-shenzhen");
-        request.putQueryParameter("PhoneNumbers", phone);
-        request.putQueryParameter("SignName", "微撩");
-        request.putQueryParameter("TemplateCode", msgType.code);
-        request.putQueryParameter("TemplateParam", "{\"code\":\"" + verifyCode + "\"}");
-        try {
-            CommonResponse response = client.getCommonResponse(request);
-            Map result = (Map) JSONObject.parse(response.getData());
-            if (!"OK".equals(result.get("Code"))) {
-                throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, (String) result.get("Message"));
-            }
-            UserVerifyCode code = new UserVerifyCode();
-            code.setPhone(phone);
-            code.setMsgType(msgType.id);
-            code.setVerifyCode(verifyCode);
-            codeMapper.insert(code);
-        } catch (ClientException e) {
-            throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, e.getErrMsg());
-        }
+        alipayService.sendSms(phone, msgType, verifyCode);
+        UserVerifyCode code = new UserVerifyCode();
+        code.setPhone(phone);
+        code.setMsgType(msgType.id);
+        code.setVerifyCode(verifyCode);
+        codeMapper.insert(code);
     }
 
     @Override
@@ -246,28 +219,8 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public UserAuth wxlogin(String jsCode) {
 
-        String url = new StringBuilder()
-                .append("https://api.weixin.qq.com/sns/jscode2session?appid=")
-                .append(wxConfig.getAppId())
-                .append("&secret=")
-                .append(wxConfig.getAppSecret())
-                .append("&js_code=")
-                .append(jsCode)
-                .append("&grant_type=authorization_code").toString();
-
-        JSONObject result = HttpUtils.doGet(url, null);
+        JSONObject result = wechatService.code2Session(jsCode);
         String openid = result.getString("openid");
-        String errcode = result.getString("errcode");
-        if (StringUtils.isEmpty(openid)) {
-            if ("40029".equals(errcode)) {
-                throw new UserException(ReturnCode.BAD_REQUEST, "code无效");
-            } else if ("45011".equals(errcode)) {
-                throw new UserException(ReturnCode.BAD_REQUEST, "请求频率过高");
-            } else if (!"0".equals(errcode)) {
-                throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, result.getString("errmsg"));
-            }
-            throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "请求微信接口失败");
-        }
 
         UserAuth userAuth = userAuthMapper.getByOpenid(openid);
         if (userAuth == null) {

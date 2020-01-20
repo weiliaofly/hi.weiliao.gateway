@@ -43,7 +43,9 @@ public class WebAppConfigurer implements WebMvcConfigurer {
                 .addPathPatterns("/userfollow/follow")
                 .addPathPatterns("/userfollow/cancel_follow")
                 .addPathPatterns("/userfollow/count")
-                .addPathPatterns("/usercoin/**");
+                .addPathPatterns("/usercoin/**")
+                .addPathPatterns("/userfollow/count")
+                .addPathPatterns("/wechat/**");
 
         registry.addInterceptor(getManagerInterceptor())
                 .addPathPatterns("/usermanage/**");

@@ -34,9 +34,8 @@ spring:
 
 wxconfig:
   appId: wxedfcddc996ccc43e
-  appSecret: 9312ee4d79d6435cbcf67d19c13d8784
+  appSecret: aa77b0135e0cec18e4a56b1d35aa6128
 
 aliconfig:
   accessKeyId: LTAI4FhM6YePvCKCmZYitMwP
   accessKeySecret: T6Ddxgf4Zkpt2VaNM3YdhLSYXd3Jcx
-  registerMsgId: SMS_173760507

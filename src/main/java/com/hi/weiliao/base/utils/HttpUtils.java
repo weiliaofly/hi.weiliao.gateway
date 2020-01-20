@@ -69,7 +69,7 @@ public class HttpUtils {
             }
         }
         catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
 
         return null;
@@ -81,7 +81,7 @@ public class HttpUtils {
      * @param params
      * @return
      */
-    public static String doPost(String url, Map params){
+    public static JSONObject doPost(String url, Map params){
 
         BufferedReader in = null;
         try {
@@ -114,69 +114,24 @@ public class HttpUtils {
                     sb.append(line + NL);
                 }
 
-                in.close();
-
-                return sb.toString();
-            }
-            else{	//
-                System.out.println("状态码：" + code);
+                return JSONObject.parseObject(sb.toString());
+            }else{
+                logger.error("状态码：" + code);
                 return null;
             }
-        }
-        catch(Exception e){
-            e.printStackTrace();
-
+        }catch(Exception e){
+            logger.error(e.getMessage());
             return null;
-        }
-    }
-
-    /**
-     * post请求（用于请求json格式的参数）
-     * @param url
-     * @param params
-     * @return
-     */
-    public static String doPost(String url, String params) throws Exception {
-
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(url);// 创建httpPost
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-Type", "application/json");
-        httpPost.setHeader("Cookie", "JSESSIONID=30633DB3A803417BCEFE961C4B76106D-n1");
-        String charSet = "UTF-8";
-        StringEntity entity = new StringEntity(params, charSet);
-        httpPost.setEntity(entity);
-        CloseableHttpResponse response = null;
-
-        try {
-
-            response = httpclient.execute(httpPost);
-            StatusLine status = response.getStatusLine();
-            int state = status.getStatusCode();
-            if (state == HttpStatus.SC_OK) {
-                HttpEntity responseEntity = response.getEntity();
-                String jsonString = EntityUtils.toString(responseEntity);
-                return jsonString;
-            }
-            else{
-                logger.error("请求返回:"+state+"("+url+")");
-            }
-        }
-        finally {
-            if (response != null) {
+        }finally {
+            if (in != null) {
                 try {
-                    response.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    in.close();
+                }catch (IOException e) {
+                    logger.error(e.getMessage());
+
                 }
             }
-            try {
-                httpclient.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
-        return null;
     }
 
 }
