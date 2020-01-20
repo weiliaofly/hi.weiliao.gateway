@@ -8,4 +8,16 @@
         from GLOBAL_CONFIG
     </select>
 
+    <select id="getByKey" resultType="String">
+        select CONFIG_VALUE
+        from GLOBAL_CONFIG
+        where CONFIG_KEY = #{configKey}
+    </select>
+
+    <update id="update" parameterType="map">
+        update GLOBAL_CONFIG
+        set CONFIG_KEY = #{configKey}
+        where CONFIG_VALUE = #{configValue}
+    </update>
+
 </mapper>

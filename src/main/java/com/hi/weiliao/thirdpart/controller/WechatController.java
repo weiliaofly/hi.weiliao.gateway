@@ -24,6 +24,11 @@ public class WechatController extends BaseController {
     @Autowired
     private WechatService wechatService;
 
+    /**
+     * 微信审核
+     * @param body
+     * @return
+     */
     @RequestMapping(value = "/msg_sec_check", method = RequestMethod.POST)
     public ReturnObject msgSecCheck(@RequestBody Map<String, String> body) {
         userContext.getUserIdAndCheck();

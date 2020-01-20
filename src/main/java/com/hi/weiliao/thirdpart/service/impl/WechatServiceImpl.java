@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.config.WxConfig;
 import com.hi.weiliao.base.exception.UserException;
+import com.hi.weiliao.base.utils.HttpClientUtil;
 import com.hi.weiliao.base.utils.HttpUtils;
 import com.hi.weiliao.thirdpart.service.WechatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,14 +64,15 @@ public class WechatServiceImpl implements WechatService {
                 .append(getAccessToken())
                 .toString();
 
-        Map body = new HashMap();
+        JSONObject body = new JSONObject();
         body.put("content", content);
-        JSONObject jsonObject = HttpUtils.doPost(url, body);
+        JSONObject jsonObject = HttpClientUtil.httpRequest(url, "POST", body.toJSONString(), null);
+        String errorcode = jsonObject.getString("errcode");
         if (jsonObject == null) {
             throw  new UserException(ReturnCode.INTERNAL_SERVER_DISCONNET,"调用远程接口失败");
         }
-        if(!"0".equals(jsonObject.getString("errcode"))) {
-            throw new UserException(ReturnCode.INTERNAL_SERVER_DISCONNET, "调用远程接口失败"+jsonObject.getString("errcode")+jsonObject.getString("errmsg"));
+        if(!StringUtils.isEmpty(errorcode) && !"0".equals(errorcode)) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "调用远程接口失败"+jsonObject.getString("errcode")+jsonObject.getString("errmsg"));
         }
     }
 
@@ -90,10 +92,12 @@ public class WechatServiceImpl implements WechatService {
                     .toString();
             JSONObject jsonObject = HttpUtils.doGet(url, null);
             String token = jsonObject.getString("access_token");
+            String errorcode = jsonObject.getString("errcode");
             if (jsonObject == null){
                 throw  new UserException(ReturnCode.INTERNAL_SERVER_DISCONNET,"调用远程接口失败");
             }
-            if(StringUtils.isEmpty(token) || !"0".equals(jsonObject.getString("errcode"))) {
+            if(StringUtils.isEmpty(token)
+                    || (!StringUtils.isEmpty(errorcode) && !"0".equals(errorcode))) {
                 throw new UserException(ReturnCode.INTERNAL_SERVER_DISCONNET, "调用远程接口失败："
                         + jsonObject.getString("errcode") + ":" + jsonObject.getString("errmsg"));
             }

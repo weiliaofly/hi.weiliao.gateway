@@ -5,6 +5,7 @@ import com.hi.weiliao.base.service.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,16 @@ public class GlobalConfigServiceImpl implements GlobalConfigService {
 
     @Override
     public String getConfigValue(String configKey) {
-        return GLOBAL_CONFIG.get(configKey);
+        String configValue = GLOBAL_CONFIG.get(configKey);
+        if(StringUtils.isEmpty(configValue)) {
+            configValue = globalConfigMapper.getByKey(configKey);
+            GLOBAL_CONFIG.put(configKey, configValue);
+        }
+        return configValue;
+    }
+
+    @Override
+    public int updateConfigValue(String configKey, String configValue) {
+        return globalConfigMapper.update(configKey, configValue);
     }
 }
