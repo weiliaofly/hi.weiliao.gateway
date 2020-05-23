@@ -8,10 +8,10 @@ mybatis:
 spring:
   datasource:
     type: com.mchange.v2.c3p0.ComboPooledDataSource
-    jdbcUrl: jdbc:mysql://49.235.164.57:3306/weiliao_user?useUnicode:true&characterEncoding:utf-8&zeroDateTimeBehavior:convertToNull&allowMultiQueries:true&autoReconnect:true
+    jdbcUrl:
     driverClass: com.mysql.jdbc.Driver
     user: root
-    password: 1c732d4b9bc24c6a
+    password:
     driver-class-name: com.mysql.jdbc.Driver
     # 下面为连接池的补充设置，应用到上面所有数据源中
     # 初始化大小，最小，最大
@@ -33,9 +33,10 @@ spring:
     maxPoolPreparedStatementPerConnectionSize: 20
 
 wxconfig:
-  appId: wxedfcddc996ccc43e
-  appSecret: aa77b0135e0cec18e4a56b1d35aa6128
+  appId:
+  appSecret:
 
 aliconfig:
-  accessKeyId: LTAI4FhM6YePvCKCmZYitMwP
-  accessKeySecret: T6Ddxgf4Zkpt2VaNM3YdhLSYXd3Jcx
+  accessKeyId:
+  accessKeySecret:
+  registerMsgId:
