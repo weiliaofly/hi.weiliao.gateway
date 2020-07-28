@@ -7,12 +7,10 @@ import com.hi.weiliao.base.exception.UserException;
 import com.hi.weiliao.base.service.GlobalConfigService;
 import com.hi.weiliao.base.utils.*;
 import com.hi.weiliao.thirdpart.service.AlipayService;
+import com.hi.weiliao.thirdpart.service.QqService;
 import com.hi.weiliao.thirdpart.service.WechatService;
 import com.hi.weiliao.user.UserContext;
-import com.hi.weiliao.user.bean.CoinConfigEnum;
-import com.hi.weiliao.user.bean.UserAuth;
-import com.hi.weiliao.user.bean.UserInfo;
-import com.hi.weiliao.user.bean.UserVerifyCode;
+import com.hi.weiliao.user.bean.*;
 import com.hi.weiliao.user.mapper.UserAuthMapper;
 import com.hi.weiliao.user.mapper.UserVerifyCodeMapper;
 import com.hi.weiliao.user.service.InviteHistoryService;
@@ -49,6 +47,9 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Autowired
     private WechatService wechatService;
+
+    @Autowired
+    private QqService qqService;
 
     @Autowired
     private UserAuthMapper userAuthMapper;
@@ -100,7 +101,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         if (StringUtils.isEmpty(sendCode) || !sendCode.equals(vCode)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "验证码过期或无效");
         }
-        UserAuth userAuth = register(phone, "", password);
+        UserAuth userAuth = register(phone, "", "", password);
         userInfoService.initUserInfo(userAuth.getId(), null);
         addCoinByInvite(inviteId);
         inviteHistoryService.invite(userAuth.getId(), inviteId);
@@ -222,11 +223,11 @@ public class UserAuthServiceImpl implements UserAuthService {
         JSONObject result = wechatService.code2Session(jsCode);
         String openid = result.getString("openid");
 
-        UserAuth userAuth = userAuthMapper.getByOpenid(openid);
+        UserAuth userAuth = userAuthMapper.getByWxOpenid(openid);
         if (userAuth == null) {
             userAuth = new UserAuth();
             userAuth.setWxOpenid(openid);
-            openidToSessionKey.put(openid, result.getString("session_key"));
+            openidToSessionKey.put(UserSourceEnum.WX.name + openid, result.getString("session_key"));
             return userAuth;
         } else {
             return userAuth;
@@ -235,7 +236,7 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Override
     public String wxPhoneLogin(String openid, String encryptedData, String iv, Integer inviteId) {
-        String sessionKey = openidToSessionKey.get(openid);
+        String sessionKey = openidToSessionKey.get(UserSourceEnum.WX.name + openid);
         if (StringUtils.isEmpty(sessionKey)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "需要先调用微信快捷登录");
         }
@@ -250,9 +251,9 @@ public class UserAuthServiceImpl implements UserAuthService {
         } catch (Exception e) {
             throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "手机号解密出错");
         }
-        UserAuth userAuth = register(phone, openid, "");
+        UserAuth userAuth = register(phone, openid, "", "");
         userInfoService.initUserInfo(userAuth.getId(), null);
-        openidToSessionKey.remove(openid);
+        openidToSessionKey.remove(UserSourceEnum.WX.name + openid);
         addCoinByInvite(inviteId);
         inviteHistoryService.invite(userAuth.getId(), inviteId);
         return userAuth.getSession();
@@ -260,7 +261,7 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Override
     public String wxInfoLogin(String openid, String encryptedData, String iv, Integer inviteId) {
-        String sessionKey = openidToSessionKey.get(openid);
+        String sessionKey = openidToSessionKey.get(UserSourceEnum.WX.name + openid);
         if (StringUtils.isEmpty(sessionKey)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "需要先调用微信快捷登录");
         }
@@ -273,7 +274,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         } catch (Exception e) {
             throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "用户信息解密出错");
         }
-        UserAuth userAuth = register(null, openid, null);
+        UserAuth userAuth = register(null, openid, "", null);
         UserInfo userInfo = new UserInfo();
         userInfo.setUserId(userAuth.getId());
         userInfo.setName(jsonObject.getString("nickName"));
@@ -282,7 +283,52 @@ public class UserAuthServiceImpl implements UserAuthService {
         userInfo.setProvince(jsonObject.getString("province"));
         userInfo.setCity(jsonObject.getString("city"));
         userInfoService.insertUserInfo(userInfo);
-        openidToSessionKey.remove(openid);
+        openidToSessionKey.remove(UserSourceEnum.WX.name + openid);
+        addCoinByInvite(inviteId);
+        inviteHistoryService.invite(userAuth.getId(), inviteId);
+        return userAuth.getSession();
+    }
+
+    @Override
+    public UserAuth qqlogin(String jscode) {
+        JSONObject result = qqService.code2Session(jscode);
+        String openid = result.getString("openid");
+        UserAuth userAuth = userAuthMapper.getByQqOpenid(openid);
+        if (userAuth == null) {
+            userAuth = new UserAuth();
+            userAuth.setWxOpenid(openid);
+            openidToSessionKey.put(UserSourceEnum.QQ.name + openid, result.getString("session_key"));
+            return userAuth;
+        } else {
+            return userAuth;
+        }
+    }
+
+    @Override
+    public String qqInfoLogin(String openid, String encryptedData, String iv, Integer inviteId) {
+        String sessionKey = openidToSessionKey.get(UserSourceEnum.QQ.name + openid);
+        if (StringUtils.isEmpty(sessionKey)) {
+            throw new UserException(ReturnCode.BAD_REQUEST, "需要先调用QQ快捷登录");
+        }
+
+        JSONObject jsonObject;
+        try {
+            String response = CipherUtils.decryptS5(encryptedData, "UTF-8", sessionKey, iv);
+            logger.debug("response:" + response);
+            jsonObject = JSONObject.parseObject(response);
+        } catch (Exception e) {
+            throw new UserException(ReturnCode.INTERNAL_SERVER_ERROR, "QQ用户信息解密出错");
+        }
+        UserAuth userAuth = register(null, "", openid, null);
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUserId(userAuth.getId());
+        userInfo.setName(jsonObject.getString("nickName"));
+        userInfo.setHeadIcon(jsonObject.getString("avatarUrl"));
+        userInfo.setSex(jsonObject.getInteger("gender"));
+        userInfo.setProvince(jsonObject.getString("province"));
+        userInfo.setCity(jsonObject.getString("city"));
+        userInfoService.insertUserInfo(userInfo);
+        openidToSessionKey.remove(UserSourceEnum.WX.name + openid);
         addCoinByInvite(inviteId);
         inviteHistoryService.invite(userAuth.getId(), inviteId);
         return userAuth.getSession();
@@ -306,7 +352,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         return exist;
     }
 
-    private UserAuth register(String phone, String wxOpenId, String password) {
+    private UserAuth register(String phone, String wxOpenId, String qqOpenId, String password) {
         if (!StringUtils.isEmpty(phone) && checkExist(phone)) {
             throw new UserException(ReturnCode.BAD_REQUEST, "该用户已注册");
         }
@@ -314,6 +360,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         UserAuth userAuth = new UserAuth();
         session = createSession();
         userAuth.setWxOpenid(wxOpenId);
+        userAuth.setQqOpenid(qqOpenId);
         userAuth.setPhone(phone);
         if (!StringUtils.isEmpty(password)) {
             userAuth.setPassword(Md5Utils.encrypt(password));

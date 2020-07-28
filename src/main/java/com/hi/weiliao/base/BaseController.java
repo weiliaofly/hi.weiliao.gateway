@@ -72,7 +72,7 @@ public class BaseController {
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
+    @ResponseBody  
     public ReturnObject handleConstraintViolationException(HttpServletRequest request, ConstraintViolationException ex) {
         return new ReturnObject(ReturnCode.INTERNAL_SERVER_ERROR.getCode(), ex.getMessage());
     }

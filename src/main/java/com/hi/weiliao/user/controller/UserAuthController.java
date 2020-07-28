@@ -5,21 +5,18 @@ import com.hi.weiliao.base.bean.EnumMsgType;
 import com.hi.weiliao.base.bean.ReturnCode;
 import com.hi.weiliao.base.bean.ReturnObject;
 import com.hi.weiliao.base.exception.UserException;
-import com.hi.weiliao.base.utils.TimeUtils;
 import com.hi.weiliao.user.UserContext;
-import com.hi.weiliao.user.bean.SignHistory;
-import com.hi.weiliao.user.bean.UserAuth;
 import com.hi.weiliao.user.service.UserAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
-import java.util.List;
 import java.util.Map;
 
 @Validated
@@ -257,6 +254,39 @@ public class UserAuthController extends BaseController {
         Integer inviteId = checkInviteId(wxInfoLogin);
         return new ReturnObject(ReturnCode.SUCCESS, userAuthService.wxInfoLogin(openid, encryptedData, iv, inviteId));
     }
+
+    /**
+     * QQ登录，用jscode直接换到openid查询有无存在用户，不存在返回openid
+     * @param qqlogin
+     * @return
+     */
+    @RequestMapping(value = "/qq_login", method = RequestMethod.POST)
+    public ReturnObject qqlogin(@RequestBody Map<String, String> qqlogin) {
+        String code = qqlogin.get("code");
+        if (StringUtils.isEmpty(code)) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
+        }
+        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.qqlogin(code));
+    }
+
+    /**
+     * QQ授权用户信息登录
+     *
+     * @param qqInfoLogin
+     * @return
+     */
+    @RequestMapping(value = "/qq_info_login", method = RequestMethod.POST)
+    public ReturnObject qqInfoLogin(@RequestBody Map<String, String> qqInfoLogin) {
+        String encryptedData = qqInfoLogin.get("encrypted_data");
+        String iv = qqInfoLogin.get("iv");
+        String openid = qqInfoLogin.get("openid");
+        if (StringUtils.isEmpty(encryptedData) || StringUtils.isEmpty(iv) || StringUtils.isEmpty(openid)) {
+            return new ReturnObject(ReturnCode.PARAMETERS_ERROR);
+        }
+        Integer inviteId = checkInviteId(qqInfoLogin);
+        return new ReturnObject(ReturnCode.SUCCESS, userAuthService.qqInfoLogin(openid, encryptedData, iv, inviteId));
+    }
+
 
     private Integer checkInviteId(Map<String, String> param) {
         String inviteIdStr = param.get("invite_id");

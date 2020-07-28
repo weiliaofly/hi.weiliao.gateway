@@ -14,7 +14,9 @@ public interface UserAuthMapper {
 
     int update(UserAuth userAuth);
 
-    UserAuth getByOpenid(@Param("wxOpenid") String wxOpenid);
+    UserAuth getByWxOpenid(@Param("wxOpenid") String wxOpenid);
+
+    UserAuth getByQqOpenid(@Param("qqOpenid") String qqOpenid);
 
     UserAuth getBySession(@Param("session") String session);
 

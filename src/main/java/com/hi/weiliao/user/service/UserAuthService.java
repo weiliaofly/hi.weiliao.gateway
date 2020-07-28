@@ -32,6 +32,10 @@ public interface UserAuthService {
 
     String wxInfoLogin(String openid, String encryptedData, String iv, Integer inviteId);
 
+    UserAuth qqlogin(String jscode);
+
+    String qqInfoLogin(String openid, String encryptedData, String iv, Integer inviteId);
+
     Integer getUserIdBySession(String session);
 
     UserAuth getExistById (int userId);
