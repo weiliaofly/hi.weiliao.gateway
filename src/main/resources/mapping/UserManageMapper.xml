@@ -5,7 +5,13 @@
 
     <select id="query" resultType="map">
         select
-            UA.*,
+            UA.ID,
+            UA.PHONE,
+            UA.PW_TRY_TIMES,
+            UA.WX_OPENID,
+            UA.QQ_OPENID,
+            UA.SESSION,
+            UA.CREATE_TIME,
             UI.NAME,
             UI.HEAD_ICON,
             UI.BACKGROUND,
@@ -14,13 +20,20 @@
             UI.BIRTHDAY,
             UI.PROVINCE,
             UI.CITY,
-            UI.COIN
+            UI.COIN,
+            UI.REVISE_TIME
         from USER_AUTH UA
         left join USER_INFO UI
         ON UA.ID = UI.USER_ID
         where 1 = 1
         <if test="phone != null and phone != ''">
-            UA.phone = #{phone}
+            UA.phone like CONCAT('%', #{phone}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            UI.name like CONCAT('%', #{name}, '%')
+        </if>
+        <if test="source != null and source != ''">
+            UA.source = #{source}
         </if>
     </select>
 

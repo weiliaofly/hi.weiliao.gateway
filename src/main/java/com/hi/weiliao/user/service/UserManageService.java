@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface UserManageService {
 
-    PageInfo query(String phone, Integer pageNo, Integer pageSize);
+    PageInfo query(String phone, String name, String source,
+                   Integer pageNo, Integer pageSize, String orderBy);
 
     int deleteByPhone(String phone);
 

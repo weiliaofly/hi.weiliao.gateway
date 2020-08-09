@@ -379,6 +379,8 @@ public class UserAuthServiceImpl implements UserAuthService {
             userAuth.setSource(UserSourceEnum.WX.name);
         } else if (!StringUtils.isEmpty(qqOpenId)) {
             userAuth.setSource(UserSourceEnum.QQ.name);
+        } else if (!StringUtils.isEmpty(phone)) {
+            userAuth.setSource(UserSourceEnum.PHONE.name);
         } else {
             userAuth.setSource(UserSourceEnum.UNKNOW.name);
         }
