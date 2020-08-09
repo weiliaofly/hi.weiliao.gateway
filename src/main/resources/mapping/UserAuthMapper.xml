@@ -10,14 +10,15 @@
         <result column="pw_try_times" property="pwTryTimes" jdbcType="INTEGER"/>
         <result column="wx_openid" property="wxOpenid" jdbcType="VARCHAR"/>
         <result column="qq_openid" property="qqOpenid" jdbcType="VARCHAR"/>
+        <result column="source" property="source" jdbcType="VARCHAR"/>
         <result column="session" property="session" jdbcType="VARCHAR"/>
         <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
         <result column="revise_time" property="reviseTime" jdbcType="VARCHAR"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.hi.weiliao.user.bean.UserAuth" useGeneratedKeys="true" keyProperty="id">
-        insert into `USER_AUTH` (`PHONE`, `PASSWORD`, `WX_OPENID`, `QQ_OPENID`, `SESSION`)
-        values (#{phone}, #{password}, #{wxOpenid}, #{qqOpenid}, #{session})
+        insert into `USER_AUTH` (`PHONE`, `PASSWORD`, `WX_OPENID`, `QQ_OPENID`, `SOURCE`, `SESSION`)
+        values (#{phone}, #{password}, #{wxOpenid}, #{qqOpenid}, #{source}, #{session})
     </insert>
 
     <update id="update" parameterType="com.hi.weiliao.user.bean.UserAuth">

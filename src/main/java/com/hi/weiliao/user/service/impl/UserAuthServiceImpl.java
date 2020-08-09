@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -58,6 +59,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     private UserVerifyCodeMapper codeMapper;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void sendVCode(Integer userId, String phone, EnumMsgType msgType) {
         UserAuth userAuth = userAuthMapper.getByPhone(phone);
         if (EnumMsgType.REGISTER == msgType) {
@@ -95,6 +97,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String registerByVCode(String phone, String vCode, String password, Integer inviteId) {
 
         String sendCode = codeMapper.queryVaildCodeByPhone(phone, EnumMsgType.REGISTER.id);
@@ -109,6 +112,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void setPhone(Integer userId, String phone, String vCode) {
         UserAuth exist = getExistById(userId);
         if (phone.equals(exist.getPhone())) {
@@ -199,6 +203,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String vcodelogin(String phone, String vCode) {
         UserAuth exist = userAuthMapper.getByPhone(phone);
         if (exist == null) {
@@ -218,6 +223,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public UserAuth wxlogin(String jsCode) {
 
         JSONObject result = wechatService.code2Session(jsCode);
@@ -235,6 +241,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String wxPhoneLogin(String openid, String encryptedData, String iv, Integer inviteId) {
         String sessionKey = openidToSessionKey.get(UserSourceEnum.WX.name + openid);
         if (StringUtils.isEmpty(sessionKey)) {
@@ -260,6 +267,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String wxInfoLogin(String openid, String encryptedData, String iv, Integer inviteId) {
         String sessionKey = openidToSessionKey.get(UserSourceEnum.WX.name + openid);
         if (StringUtils.isEmpty(sessionKey)) {
@@ -290,6 +298,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public UserAuth qqlogin(String jscode) {
         JSONObject result = qqService.code2Session(jscode);
         String openid = result.getString("openid");
@@ -305,6 +314,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String qqInfoLogin(String openid, String encryptedData, String iv, Integer inviteId) {
         String sessionKey = openidToSessionKey.get(UserSourceEnum.QQ.name + openid);
         if (StringUtils.isEmpty(sessionKey)) {
@@ -364,6 +374,13 @@ public class UserAuthServiceImpl implements UserAuthService {
         userAuth.setPhone(phone);
         if (!StringUtils.isEmpty(password)) {
             userAuth.setPassword(Md5Utils.encrypt(password));
+        }
+        if (!StringUtils.isEmpty(wxOpenId)) {
+            userAuth.setSource(UserSourceEnum.WX.name);
+        } else if (!StringUtils.isEmpty(qqOpenId)) {
+            userAuth.setSource(UserSourceEnum.QQ.name);
+        } else {
+            userAuth.setSource(UserSourceEnum.UNKNOW.name);
         }
         userAuth.setSession(session);
         userAuthMapper.insert(userAuth);

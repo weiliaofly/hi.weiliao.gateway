@@ -15,6 +15,7 @@ public class UserAuth implements Serializable {
     private Integer pwTryTimes;
     private String wxOpenid;
     private String qqOpenid;
+    private String source;
     private String session;
     private String createTime;
     private String reviseTime;

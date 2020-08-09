@@ -21,8 +21,8 @@ public class UserManegeServiceImpl implements UserManageService {
     private UserManageMapper userManageMapper;
 
     @Override
-    public PageInfo query(String phone, Integer pageNo, Integer pageSize) {
-        PageHelper.startPage(pageNo, pageSize);
+    public PageInfo query(String phone, Integer pageNo, Integer pageSize, String orderBy) {
+        PageHelper.startPage(pageNo, pageSize, orderBy);
         return new PageInfo(userManageMapper.query(phone));
     }
 
