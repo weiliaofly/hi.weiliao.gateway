@@ -27,13 +27,13 @@
         ON UA.ID = UI.USER_ID
         where 1 = 1
         <if test="phone != null and phone != ''">
-            UA.phone like CONCAT('%', #{phone}, '%')
+            AND UA.phone like CONCAT('%', #{phone}, '%')
         </if>
         <if test="name != null and name != ''">
-            UI.name like CONCAT('%', #{name}, '%')
+            AND UI.name like CONCAT('%', #{name}, '%')
         </if>
         <if test="source != null and source != ''">
-            UA.source = #{source}
+            AND UA.source = #{source}
         </if>
     </select>
 

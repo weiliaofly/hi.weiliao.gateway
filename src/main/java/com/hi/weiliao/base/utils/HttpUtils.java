@@ -14,11 +14,14 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -128,5 +131,18 @@ public class HttpUtils {
         }
     }
 
+
+    public static String urlDecode(String encode) {
+        if (StringUtils.isEmpty(encode)) {
+            return null;
+        }
+        try {
+            String keyWord = URLDecoder.decode(encode, "utf-8");
+            return keyWord;
+        } catch (UnsupportedEncodingException e) {
+            logger.error("urlDecode失败：" + encode, e);
+        }
+        return null;
+    }
 }
 
